@@ -1,0 +1,134 @@
+import Link from "next/link";
+import { requireCabinet } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { AppShell } from "@/components/app-shell";
+import { STATUTS, STATUT_COLORS, TYPES_AFFAIRE, type Statut } from "./constants";
+
+export default async function DossiersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ statut?: string }>;
+}) {
+  const user = await requireCabinet();
+  const { statut } = await searchParams;
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("dossiers")
+    .select(
+      "id, reference, titre, type_affaire, statut, client:clients(nom), avocat:profiles(nom_complet)",
+    )
+    .order("created_at", { ascending: false });
+
+  if (statut && statut in STATUTS) query = query.eq("statut", statut);
+
+  const { data: dossiers } = await query;
+
+  return (
+    <AppShell user={user}>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Dossiers</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {dossiers?.length ?? 0} dossier{(dossiers?.length ?? 0) > 1 ? "s" : ""}
+          </p>
+        </div>
+        <Link
+          href="/dossiers/new"
+          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
+        >
+          + Nouveau dossier
+        </Link>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-1">
+        <FilterChip label="Tous" href="/dossiers" active={!statut} />
+        {Object.entries(STATUTS).map(([v, label]) => (
+          <FilterChip
+            key={v}
+            label={label}
+            href={`/dossiers?statut=${v}`}
+            active={statut === v}
+          />
+        ))}
+      </div>
+
+      {!dossiers?.length ? (
+        <div className="mt-10 rounded-lg border border-dashed border-zinc-300 py-16 text-center dark:border-zinc-700">
+          <p className="text-sm text-zinc-500">Aucun dossier.</p>
+          <Link
+            href="/dossiers/new"
+            className="mt-3 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+          >
+            Créer un dossier
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-5 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+          {dossiers.map((d) => {
+            const clientNom = relNom(d.client);
+            const avocatNom = relNom(d.avocat, "nom_complet");
+            return (
+              <Link
+                key={d.id}
+                href={`/dossiers/${d.id}`}
+                className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-zinc-400">
+                      {d.reference}
+                    </span>
+                    <span className="truncate text-sm font-medium">
+                      {d.titre}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-zinc-500">
+                    {clientNom}
+                    {avocatNom ? ` · ${avocatNom}` : ""} ·{" "}
+                    {TYPES_AFFAIRE[d.type_affaire as keyof typeof TYPES_AFFAIRE]}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                    STATUT_COLORS[d.statut as Statut]
+                  }`}
+                >
+                  {STATUTS[d.statut as Statut]}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </AppShell>
+  );
+}
+
+function relNom(rel: unknown, key = "nom"): string {
+  const obj = Array.isArray(rel) ? rel[0] : rel;
+  return (obj as Record<string, string> | null)?.[key] ?? "";
+}
+
+function FilterChip({
+  label,
+  href,
+  active,
+}: {
+  label: string;
+  href: string;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-full px-3 py-1 text-sm transition-colors ${
+        active
+          ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+          : "border border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900"
+      }`}
+    >
+      {label}
+    </Link>
+  );
+}

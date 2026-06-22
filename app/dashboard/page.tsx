@@ -9,7 +9,12 @@ const MODULES = [
     href: "/clients",
     ready: true,
   },
-  { name: "Dossiers", desc: "Affaires, statuts, avocat responsable", ready: false },
+  {
+    name: "Dossiers",
+    desc: "Affaires, statuts, avocat responsable",
+    href: "/dossiers",
+    ready: true,
+  },
   { name: "Agenda & Échéances", desc: "RDV, audiences, délais", ready: false },
   { name: "Temps & Facturation", desc: "Saisie du temps, factures", ready: false },
   { name: "Documents", desc: "GED par dossier, modèles", ready: false },

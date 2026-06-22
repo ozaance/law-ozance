@@ -5,6 +5,7 @@ import type { CurrentUser } from "@/lib/auth";
 const NAV = [
   { href: "/dashboard", label: "Tableau de bord" },
   { href: "/clients", label: "Clients" },
+  { href: "/dossiers", label: "Dossiers" },
 ];
 
 export function AppShell({
