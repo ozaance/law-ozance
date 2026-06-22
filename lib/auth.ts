@@ -8,6 +8,7 @@ export type CurrentUser = {
   role: string;
   cabinetId: string;
   cabinetNom: string;
+  tauxHoraire: number | null;
 };
 
 // À utiliser dans les pages protégées qui exigent un cabinet.
@@ -21,7 +22,7 @@ export async function requireCabinet(): Promise<CurrentUser> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nom_complet, role, cabinet_id, cabinet:cabinets(nom)")
+    .select("nom_complet, role, cabinet_id, taux_horaire, cabinet:cabinets(nom)")
     .eq("id", user.id)
     .single();
 
@@ -38,5 +39,6 @@ export async function requireCabinet(): Promise<CurrentUser> {
     role: profile.role,
     cabinetId: profile.cabinet_id,
     cabinetNom: cabinetNom ?? "Mon cabinet",
+    tauxHoraire: profile.taux_horaire,
   };
 }

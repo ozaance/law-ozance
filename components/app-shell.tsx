@@ -37,12 +37,15 @@ export function AppShell({
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden text-right sm:block">
+            <Link
+              href="/parametres"
+              className="hidden rounded-md px-2 py-1 text-right transition-colors hover:bg-zinc-100 sm:block dark:hover:bg-zinc-900"
+            >
               <p className="text-sm font-medium leading-tight">
                 {user.nomComplet ?? user.email}
               </p>
               <p className="text-xs text-zinc-500">{user.cabinetNom}</p>
-            </div>
+            </Link>
             <form action={signout}>
               <button
                 type="submit"

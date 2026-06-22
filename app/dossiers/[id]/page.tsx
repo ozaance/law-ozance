@@ -13,6 +13,9 @@ import {
   formatDateFr,
   type TypeEvenement,
 } from "@/app/agenda/constants";
+import { TimeEntryForm } from "@/app/temps/time-entry-form";
+import { DeleteEntryButton } from "@/app/temps/delete-entry-button";
+import { formatDuree, formatEuros, montantLigne } from "@/lib/format";
 
 export default async function DossierDetailPage({
   params,
@@ -26,7 +29,7 @@ export default async function DossierDetailPage({
   const { data: dossier } = await supabase
     .from("dossiers")
     .select(
-      "id, reference, titre, client_id, avocat_id, type_affaire, statut, description, date_ouverture, date_cloture",
+      "id, reference, titre, client_id, avocat_id, type_affaire, statut, description, date_ouverture, date_cloture, taux_horaire",
     )
     .eq("id", id)
     .single();
@@ -38,6 +41,24 @@ export default async function DossierDetailPage({
     .select("id, type, titre, date_evenement, termine")
     .eq("dossier_id", dossier.id)
     .order("date_evenement", { ascending: true });
+
+  const { data: temps } = await supabase
+    .from("time_entries")
+    .select(
+      "id, date_saisie, duree_minutes, taux, description, avocat:profiles(nom_complet)",
+    )
+    .eq("dossier_id", dossier.id)
+    .order("date_saisie", { ascending: false });
+
+  const tauxSuggere = dossier.taux_horaire ?? user.tauxHoraire ?? null;
+  const totalMinutes = (temps ?? []).reduce(
+    (s, t) => s + t.duree_minutes,
+    0,
+  );
+  const totalMontant = (temps ?? []).reduce((s, t) => {
+    const m = montantLigne(t.duree_minutes, t.taux);
+    return s + (m ?? 0);
+  }, 0);
 
   const { clients, avocats } = await getDossierFormOptions();
   const updateWithId = updateDossierAction.bind(null, dossier.id);
@@ -112,6 +133,56 @@ export default async function DossierDetailPage({
         )}
       </section>
 
+      <section className="mb-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-zinc-500">
+            Temps passé ({formatDuree(totalMinutes)})
+          </h2>
+          <span className="text-sm font-medium">
+            Total : {formatEuros(totalMontant)}
+          </span>
+        </div>
+
+        <TimeEntryForm dossierId={dossier.id} tauxSuggere={tauxSuggere} />
+
+        {temps?.length ? (
+          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            {temps.map((t) => {
+              const avocatNom = Array.isArray(t.avocat)
+                ? t.avocat[0]?.nom_complet
+                : (t.avocat as { nom_complet: string } | null)?.nom_complet;
+              return (
+                <div
+                  key={t.id}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm"
+                >
+                  <span className="w-24 shrink-0 text-xs text-zinc-500">
+                    {formatDateFr(t.date_saisie).replace(/^\w+\.?\s/, "")}
+                  </span>
+                  <span className="w-16 shrink-0 font-medium">
+                    {formatDuree(t.duree_minutes)}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-zinc-600 dark:text-zinc-400">
+                    {t.description || "—"}
+                    {avocatNom ? (
+                      <span className="text-zinc-400"> · {avocatNom}</span>
+                    ) : null}
+                  </span>
+                  <span className="w-24 shrink-0 text-right">
+                    {formatEuros(montantLigne(t.duree_minutes, t.taux))}
+                  </span>
+                  <DeleteEntryButton id={t.id} dossierId={dossier.id} />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-zinc-400">
+            Aucune saisie de temps pour ce dossier.
+          </p>
+        )}
+      </section>
+
       <h2 className="mb-4 text-sm font-medium text-zinc-500">Informations</h2>
       <DossierForm
         action={updateWithId}
@@ -126,6 +197,7 @@ export default async function DossierDetailPage({
           description: dossier.description,
           date_ouverture: dossier.date_ouverture,
           date_cloture: dossier.date_cloture,
+          taux_horaire: dossier.taux_horaire,
         }}
         submitLabel="Enregistrer"
         cancelHref="/dossiers"

@@ -24,7 +24,15 @@ function parseForm(formData: FormData) {
     description: emptyToNull(formData.get("description")),
     date_ouverture: emptyToNull(formData.get("date_ouverture")),
     date_cloture: emptyToNull(formData.get("date_cloture")),
+    taux_horaire: parseTaux(formData.get("taux_horaire")),
   };
+}
+
+function parseTaux(v: FormDataEntryValue | null): number | null {
+  const s = String(v ?? "").trim();
+  if (!s) return null;
+  const n = Number(s.replace(",", "."));
+  return Number.isNaN(n) || n < 0 ? null : n;
 }
 
 function validate(data: ReturnType<typeof parseForm>): string | null {

@@ -14,6 +14,7 @@ export type DossierDefaults = {
   description?: string | null;
   date_ouverture?: string | null;
   date_cloture?: string | null;
+  taux_horaire?: number | null;
 };
 
 type Option = { id: string; label: string };
@@ -112,23 +113,40 @@ export function DossierForm({
         </label>
       </div>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Avocat responsable
-        </span>
-        <select
-          name="avocat_id"
-          defaultValue={defaults.avocat_id ?? ""}
-          className={inputCls}
-        >
-          <option value="">— Non assigné —</option>
-          {avocats.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="grid grid-cols-2 gap-4">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Avocat responsable
+          </span>
+          <select
+            name="avocat_id"
+            defaultValue={defaults.avocat_id ?? ""}
+            className={inputCls}
+          >
+            <option value="">— Non assigné —</option>
+            {avocats.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Taux horaire du dossier (€/h)
+          </span>
+          <input
+            name="taux_horaire"
+            type="number"
+            step="1"
+            min="0"
+            placeholder="défaut avocat"
+            defaultValue={defaults.taux_horaire ?? ""}
+            className={inputCls}
+          />
+        </label>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5">
