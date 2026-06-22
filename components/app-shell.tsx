@@ -7,6 +7,7 @@ const NAV = [
   { href: "/clients", label: "Clients" },
   { href: "/dossiers", label: "Dossiers" },
   { href: "/agenda", label: "Agenda" },
+  { href: "/factures", label: "Facturation" },
 ];
 
 export function AppShell({

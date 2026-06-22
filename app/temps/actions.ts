@@ -43,7 +43,12 @@ export async function createTimeEntry(
 
 export async function deleteTimeEntry(id: string, dossierId: string) {
   const supabase = await createClient();
-  const { error } = await supabase.from("time_entries").delete().eq("id", id);
+  // On ne supprime pas une saisie déjà rattachée à une facture.
+  const { error } = await supabase
+    .from("time_entries")
+    .delete()
+    .eq("id", id)
+    .eq("facturee", false);
   if (error) throw new Error(error.message);
   revalidatePath(`/dossiers/${dossierId}`);
 }

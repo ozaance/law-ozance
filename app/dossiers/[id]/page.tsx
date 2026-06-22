@@ -45,7 +45,7 @@ export default async function DossierDetailPage({
   const { data: temps } = await supabase
     .from("time_entries")
     .select(
-      "id, date_saisie, duree_minutes, taux, description, avocat:profiles(nom_complet)",
+      "id, date_saisie, duree_minutes, taux, description, facturee, avocat:profiles(nom_complet)",
     )
     .eq("dossier_id", dossier.id)
     .order("date_saisie", { ascending: false });
@@ -171,7 +171,16 @@ export default async function DossierDetailPage({
                   <span className="w-24 shrink-0 text-right">
                     {formatEuros(montantLigne(t.duree_minutes, t.taux))}
                   </span>
-                  <DeleteEntryButton id={t.id} dossierId={dossier.id} />
+                  {t.facturee ? (
+                    <span
+                      title="Saisie facturée"
+                      className="text-xs text-emerald-600"
+                    >
+                      facturée
+                    </span>
+                  ) : (
+                    <DeleteEntryButton id={t.id} dossierId={dossier.id} />
+                  )}
                 </div>
               );
             })}

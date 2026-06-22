@@ -21,7 +21,12 @@ const MODULES = [
     href: "/agenda",
     ready: true,
   },
-  { name: "Temps & Facturation", desc: "Saisie du temps, factures", ready: false },
+  {
+    name: "Temps & Facturation",
+    desc: "Saisie du temps, factures",
+    href: "/factures",
+    ready: true,
+  },
   { name: "Documents", desc: "GED par dossier, modèles", ready: false },
 ];
 

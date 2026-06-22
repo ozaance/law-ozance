@@ -11,6 +11,12 @@ import {
   STATUT_COLORS,
   type Statut,
 } from "@/app/dossiers/constants";
+import {
+  STATUTS_FACTURE,
+  STATUT_FACTURE_COLORS,
+  type StatutFacture,
+} from "@/app/factures/constants";
+import { formatEuros } from "@/lib/format";
 
 export default async function ClientDetailPage({
   params,
@@ -32,6 +38,12 @@ export default async function ClientDetailPage({
   const { data: dossiers } = await supabase
     .from("dossiers")
     .select("id, reference, titre, statut")
+    .eq("client_id", client.id)
+    .order("created_at", { ascending: false });
+
+  const { data: factures } = await supabase
+    .from("factures")
+    .select("id, numero, statut, total")
     .eq("client_id", client.id)
     .order("created_at", { ascending: false });
 
@@ -93,6 +105,49 @@ export default async function ClientDetailPage({
           <p className="mt-3 text-sm text-zinc-400">
             Aucun dossier pour ce client.
           </p>
+        )}
+      </section>
+
+      <section className="mb-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-zinc-500">
+            Factures ({factures?.length ?? 0})
+          </h2>
+          <Link
+            href={`/factures/new?client=${client.id}`}
+            className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+          >
+            + Créer une facture
+          </Link>
+        </div>
+        {factures?.length ? (
+          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            {factures.map((f) => (
+              <Link
+                key={f.id}
+                href={`/factures/${f.id}`}
+                className="flex items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-zinc-400">
+                    {f.numero}
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      STATUT_FACTURE_COLORS[f.statut as StatutFacture]
+                    }`}
+                  >
+                    {STATUTS_FACTURE[f.statut as StatutFacture]}
+                  </span>
+                </span>
+                <span className="text-sm font-medium">
+                  {formatEuros(Number(f.total))}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-zinc-400">Aucune facture.</p>
         )}
       </section>
 
