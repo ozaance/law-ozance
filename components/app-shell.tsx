@@ -6,6 +6,7 @@ const NAV = [
   { href: "/dashboard", label: "Tableau de bord" },
   { href: "/clients", label: "Clients" },
   { href: "/dossiers", label: "Dossiers" },
+  { href: "/agenda", label: "Agenda" },
 ];
 
 export function AppShell({

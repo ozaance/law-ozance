@@ -15,7 +15,12 @@ const MODULES = [
     href: "/dossiers",
     ready: true,
   },
-  { name: "Agenda & Échéances", desc: "RDV, audiences, délais", ready: false },
+  {
+    name: "Agenda & Échéances",
+    desc: "RDV, audiences, délais",
+    href: "/agenda",
+    ready: true,
+  },
   { name: "Temps & Facturation", desc: "Saisie du temps, factures", ready: false },
   { name: "Documents", desc: "GED par dossier, modèles", ready: false },
 ];

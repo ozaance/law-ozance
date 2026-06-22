@@ -7,6 +7,12 @@ import { DossierForm } from "../dossier-form";
 import { updateDossierAction } from "../actions";
 import { getDossierFormOptions } from "../data";
 import { DeleteDossierButton } from "./delete-button";
+import {
+  TYPES_EVENEMENT,
+  TYPE_COLORS,
+  formatDateFr,
+  type TypeEvenement,
+} from "@/app/agenda/constants";
 
 export default async function DossierDetailPage({
   params,
@@ -26,6 +32,12 @@ export default async function DossierDetailPage({
     .single();
 
   if (!dossier) notFound();
+
+  const { data: evenements } = await supabase
+    .from("evenements")
+    .select("id, type, titre, date_evenement, termine")
+    .eq("dossier_id", dossier.id)
+    .order("date_evenement", { ascending: true });
 
   const { clients, avocats } = await getDossierFormOptions();
   const updateWithId = updateDossierAction.bind(null, dossier.id);
@@ -51,6 +63,56 @@ export default async function DossierDetailPage({
         </h1>
       </div>
 
+      <section className="mb-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-zinc-500">
+            Échéances &amp; événements ({evenements?.length ?? 0})
+          </h2>
+          <Link
+            href={`/agenda/new?dossier=${dossier.id}`}
+            className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+          >
+            + Nouvel événement
+          </Link>
+        </div>
+        {evenements?.length ? (
+          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            {evenements.map((e) => (
+              <Link
+                key={e.id}
+                href={`/agenda/${e.id}`}
+                className="flex items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+              >
+                <span className="flex items-center gap-2 truncate">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      TYPE_COLORS[e.type as TypeEvenement]
+                    }`}
+                  >
+                    {TYPES_EVENEMENT[e.type as TypeEvenement]}
+                  </span>
+                  <span
+                    className={`truncate text-sm ${
+                      e.termine ? "text-zinc-400 line-through" : ""
+                    }`}
+                  >
+                    {e.titre}
+                  </span>
+                </span>
+                <span className="shrink-0 text-xs text-zinc-500">
+                  {formatDateFr(e.date_evenement)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-zinc-400">
+            Aucune échéance pour ce dossier.
+          </p>
+        )}
+      </section>
+
+      <h2 className="mb-4 text-sm font-medium text-zinc-500">Informations</h2>
       <DossierForm
         action={updateWithId}
         clients={clients}
