@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { FeaturesSection } from "./features-section";
+import { ContactDialog } from "@/app/contact/contact-dialog";
 
 /* Parse une chaîne CSS "a:b;c:d" en objet style React (fidélité au prototype). */
 function st(css: string): CSSProperties {
@@ -141,6 +142,7 @@ function HeroChart() {
 
 export function OzanceLanding() {
   const [theme, setTheme] = useState<Theme>("dark");
+  const [contactOpen, setContactOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const t = palette(theme);
 
@@ -180,8 +182,8 @@ export function OzanceLanding() {
   }, []);
 
   const rootStyle = {
-    "--ui": "var(--font-geist-sans), system-ui, sans-serif",
-    "--display": "var(--font-geist-sans), system-ui, sans-serif",
+    "--ui": "var(--font-inter), system-ui, sans-serif",
+    "--display": "var(--font-switzer), var(--font-inter), system-ui, sans-serif",
     "--mono": "var(--font-geist-mono), ui-monospace, monospace",
     "--bg": t.bg, "--surface": t.surface, "--surface-2": t.surface2,
     "--text": t.text, "--text-2": t.text2, "--text-3": t.text3,
@@ -287,7 +289,7 @@ export function OzanceLanding() {
                 <span style={st(`width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);`)} />
                 Pensé pour les cabinets d&apos;avocats
               </div>
-              <h1 className="oz-h1 oz-reveal" style={st(`font-family:var(--display);font-weight:600;font-size:clamp(44px,5.4vw,68px);line-height:1.02;letter-spacing:-.035em;margin:0 0 26px;`)}>
+              <h1 className="oz-h1 oz-reveal" style={st(`font-family:var(--display);font-weight:600;font-size:clamp(44px,5.4vw,68px);line-height:1.04;letter-spacing:-.025em;margin:0 0 26px;`)}>
                 La plateforme qui <span style={{ color: "var(--accent)" }}>pilote</span> votre cabinet.
               </h1>
               <p className="oz-reveal" style={st(`font-size:18.5px;line-height:1.62;color:var(--text-2);max-width:498px;margin:0 0 36px;font-weight:420;`)}>
@@ -537,7 +539,7 @@ export function OzanceLanding() {
                 <p style={st(`font-size:17.5px;line-height:1.55;color:var(--cta-mut);max-width:520px;margin:0 auto 32px;`)}>Découvrez Ozance en démo et voyez ce que vous pourriez gagner dès le premier mois.</p>
                 <div style={st(`display:flex;gap:13px;justify-content:center;flex-wrap:wrap;`)}>
                   <Link className="oz-cta" href="/signup" style={st(`background:var(--accent);color:var(--accent-ink);text-decoration:none;font-size:15.5px;font-weight:600;padding:16px 30px;border-radius:12px;box-shadow:0 1px 0 var(--accent-hi) inset,0 10px 30px var(--accent-shadow);`)}>Demander une démo</Link>
-                  <a className="oz-ghost" href="mailto:contact@ozance.fr" style={st(`background:transparent;color:var(--cta-fg);text-decoration:none;font-size:15.5px;font-weight:550;padding:16px 26px;border-radius:12px;border:1px solid var(--cta-border-2);`)}>Parler à un conseiller</a>
+                  <button type="button" onClick={() => setContactOpen(true)} className="oz-ghost" style={st(`background:transparent;color:var(--cta-fg);font-size:15.5px;font-weight:550;padding:16px 26px;border-radius:12px;border:1px solid var(--cta-border-2);cursor:pointer;`)}>Parler à un conseiller</button>
                 </div>
               </div>
             </div>
@@ -572,6 +574,8 @@ export function OzanceLanding() {
           </footer>
         </div>
       </div>
+
+      <ContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
     </div>
   );
 }
