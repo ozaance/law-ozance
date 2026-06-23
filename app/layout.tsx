@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Inter — texte / UI (police de corps de LegalPlace).
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+});
+
+// Switzer (Fontshare) — grotesque pour les titres, équivalent libre de Rebond Grotesque.
+const switzer = localFont({
+  variable: "--font-switzer",
+  display: "swap",
+  src: [
+    { path: "./fonts/Switzer-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/Switzer-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/Switzer-Semibold.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/Switzer-Bold.woff2", weight: "700", style: "normal" },
+  ],
 });
 
 const geistMono = Geist_Mono({
@@ -29,7 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${switzer.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

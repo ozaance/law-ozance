@@ -164,7 +164,7 @@ export function FeaturesSection() {
             </div>
             <h2 className="ozc-h2" style={st(`font-family:var(--display);font-weight:600;font-size:clamp(36px,4vw,54px);line-height:1.05;letter-spacing:-.02em;margin:0 0 26px;`)}>
               Tout ce dont votre cabinet a besoin,<br />
-              <span style={st(`font-style:italic;color:var(--accent);`)}>au même endroit.</span>
+              <span style={st(`color:var(--accent);`)}>au même endroit.</span>
             </h2>
             <p style={st(`font-size:16.5px;line-height:1.62;color:var(--text-2);max-width:380px;margin:0 0 34px;`)}>
               Ozance centralise, organise et automatise la gestion de votre cabinet pour vous faire gagner un temps précieux au quotidien.
@@ -389,7 +389,7 @@ export function FeaturesSection() {
           </div>
           <div style={st(`border-radius:18px;background:var(--surface);border:1px solid var(--border);overflow:hidden;padding:26px 28px;display:flex;flex-direction:column;justify-content:center;`)}>
             <div style={st(`font-family:var(--display);font-size:30px;line-height:0;color:var(--accent);height:14px;`)}>&ldquo;</div>
-            <p style={st(`font-size:13.5px;line-height:1.55;color:var(--text);margin:0 0 18px;font-style:italic;`)}>Ozance nous a permis de reprendre le contrôle sur notre activité et de nous recentrer sur l&apos;essentiel : nos clients.</p>
+            <p style={st(`font-size:13.5px;line-height:1.55;color:var(--text);margin:0 0 18px;`)}>Ozance nous a permis de reprendre le contrôle sur notre activité et de nous recentrer sur l&apos;essentiel : nos clients.</p>
             <div style={st(`display:flex;align-items:center;gap:13px;`)}>
               <span style={st(`width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#3a4250,#2a313c);flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);`)}>JM</span>
               <div>

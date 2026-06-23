@@ -34,7 +34,7 @@
   --color-accent-soft: var(--accent-soft);
   --color-navy: var(--navy);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 
   --radius-card: 0.75rem;
