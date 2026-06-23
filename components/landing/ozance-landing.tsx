@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { FeaturesSection } from "./features-section";
 
 /* Parse une chaîne CSS "a:b;c:d" en objet style React (fidélité au prototype). */
 function st(css: string): CSSProperties {
@@ -219,14 +220,6 @@ export function OzanceLanding() {
     { ini: "JD", name: "Jean Dupont", type: "Divorce — garde d'enfants", status: "Audience", tagbg: "rgba(91,124,184,.18)", tagc: "#7c9bd0", amount: "3 200 €", av: "#5B7CB8" },
     { ini: "SB", name: "Société Beta", type: "Recouvrement de créances", status: "Facturé", tagbg: "rgba(62,156,119,.18)", tagc: "#46b88c", amount: "12 950 €", av: "#3E9C77" },
   ];
-  const features = [
-    { title: "Gestion des dossiers", body: "Centralisez pièces, parties, échéances et historique de chaque affaire en un seul endroit.", icon: "folder" },
-    { title: "Facturation", body: "Générez, envoyez et suivez vos factures et honoraires en quelques clics.", icon: "invoice" },
-    { title: "Temps passé", body: "Chronométrez et imputez votre temps par dossier, sans rien oublier.", icon: "clock" },
-    { title: "Agenda & échéances", body: "Audiences, délais de procédure et rendez-vous, jamais manqués.", icon: "calendar" },
-    { title: "Documents", body: "Modèles, signatures et coffre-fort numérique sécurisé pour chaque client.", icon: "doc" },
-    { title: "Pilotage du cabinet", body: "Rentabilité, charge de travail et activité, visibles en temps réel.", icon: "chart" },
-  ];
   const figures = [
     { num: "40 %", label: "de temps administratif économisé chaque semaine" },
     { num: "+30 %", label: "de facturation récupérée grâce au suivi du temps" },
@@ -267,7 +260,7 @@ export function OzanceLanding() {
         <div style={{ position: "relative", zIndex: 2 }}>
           {/* NAV */}
           <header className="oz-pad" style={st(`position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);background:var(--nav-bg);border-bottom:1px solid var(--hairline);`)}>
-            <div style={st(`max-width:1240px;margin:0 auto;padding:15px 34px;display:flex;align-items:center;justify-content:space-between;`)}>
+            <div className="oz-nav-inner" style={st(`max-width:1240px;margin:0 auto;padding:15px 34px;display:flex;align-items:center;justify-content:space-between;`)}>
               <div style={st(`display:flex;align-items:center;gap:11px;`)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.mark} alt="Ozance" width={30} height={33} style={{ display: "block", width: 30, height: "auto" }} />
@@ -282,7 +275,7 @@ export function OzanceLanding() {
               <div style={st(`display:flex;align-items:center;gap:14px;`)}>
                 <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Changer de thème" className="oz-theme" style={st(`width:38px;height:38px;border-radius:10px;border:1px solid var(--hairline);background:var(--surface);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;`)}>{theme === "dark" ? "☾" : "☀"}</button>
                 <Link className="oz-navlink oz-nav-links" href="/login" style={st(`color:var(--text-2);text-decoration:none;font-size:14.5px;font-weight:500;`)}>Connexion</Link>
-                <Link className="oz-cta" href="/signup" style={st(`background:var(--accent);color:var(--accent-ink);text-decoration:none;font-size:14px;font-weight:600;padding:10px 18px;border-radius:10px;box-shadow:0 1px 0 var(--accent-hi) inset, 0 6px 18px var(--accent-shadow);`)}>Demander une démo</Link>
+                <Link className="oz-cta oz-cta-demo" href="/signup" style={st(`background:var(--accent);color:var(--accent-ink);text-decoration:none;font-size:14px;font-weight:600;padding:10px 18px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 0 var(--accent-hi) inset, 0 6px 18px var(--accent-shadow);`)}>Demander une démo</Link>
               </div>
             </div>
           </header>
@@ -404,7 +397,7 @@ export function OzanceLanding() {
                       <span style={st(`font-size:12px;font-weight:600;color:var(--accent-ink);background:var(--accent);padding:7px 13px;border-radius:9px;`)}>+ Nouveau dossier</span>
                     </div>
                   </div>
-                  <div style={st(`display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;`)}>
+                  <div className="oz-kpis" style={st(`display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;`)}>
                     {kpis.map((k) => (
                       <div key={k.label} style={st(`border:1px solid var(--hairline);border-radius:13px;padding:15px;background:var(--surface-2);`)}>
                         <div style={st(`font-size:11.5px;color:var(--text-3);margin-bottom:9px;`)}>{k.label}</div>
@@ -413,7 +406,7 @@ export function OzanceLanding() {
                       </div>
                     ))}
                   </div>
-                  <div style={st(`display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:14px;`)}>
+                  <div className="oz-dash-mid" style={st(`display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:14px;`)}>
                     <div style={st(`border:1px solid var(--hairline);border-radius:13px;padding:16px;background:var(--surface-2);`)}>
                       <div style={st(`display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;`)}>
                         <div style={st(`font-size:13px;font-weight:600;`)}>Facturation encaissée</div>
@@ -470,32 +463,18 @@ export function OzanceLanding() {
           </section>
 
           {/* FONCTIONNALITÉS */}
-          <section id="fonctionnalites" className="oz-pad" style={st(`max-width:1240px;margin:120px auto 0;padding:0 34px;`)}>
-            <div className="oz-reveal" style={st(`max-width:620px;margin-bottom:48px;`)}>
-              <div style={st(`font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;font-weight:600;`)}>Fonctionnalités</div>
-              <h2 style={st(`font-family:var(--display);font-weight:600;font-size:clamp(32px,4vw,46px);line-height:1.07;letter-spacing:-.03em;margin:0;`)}>Tout ce dont votre cabinet a besoin, au même endroit</h2>
-            </div>
-            <div className="oz-grid-feat" style={st(`display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hairline);border:1px solid var(--hairline);border-radius:18px;overflow:hidden;`)}>
-              {features.map((f) => (
-                <div key={f.title} className="oz-feature oz-reveal" style={st(`background:var(--surface);padding:30px 28px;`)}>
-                  <div style={st(`width:44px;height:44px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--accent);`)}><Icon name={f.icon} /></div>
-                  <div style={st(`font-size:17px;font-weight:600;letter-spacing:-.01em;margin-bottom:9px;`)}>{f.title}</div>
-                  <div style={st(`font-size:14px;line-height:1.58;color:var(--text-2);`)}>{f.body}</div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <FeaturesSection />
 
           {/* CHIFFRES */}
           <section className="oz-reveal oz-pad" style={st(`max-width:1240px;margin:110px auto 0;padding:0 34px;`)}>
-            <div style={st(`border:1px solid var(--border);border-radius:22px;background:var(--band-bg);padding:54px 40px;position:relative;overflow:hidden;`)}>
+            <div style={st(`border:1px solid var(--border);border-radius:22px;background:var(--surface);box-shadow:var(--shadow-md);padding:54px 40px;position:relative;overflow:hidden;`)}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/ozance-mark-gold.png" alt="" aria-hidden="true" style={st(`position:absolute;right:-70px;bottom:-120px;width:420px;opacity:.10;pointer-events:none;`)} />
+              <img src={t.mark} alt="" aria-hidden="true" style={st(`position:absolute;right:-70px;bottom:-120px;width:420px;opacity:.08;pointer-events:none;`)} />
               <div className="oz-grid-3" style={st(`position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:30px;text-align:center;`)}>
                 {figures.map((g) => (
                   <div key={g.num}>
-                    <div style={st(`font-family:var(--display);font-size:clamp(44px,6vw,60px);font-weight:600;letter-spacing:-.03em;color:var(--band-fg);line-height:1;`)}>{g.num}</div>
-                    <div style={st(`font-size:14.5px;color:var(--band-mut);margin-top:14px;max-width:240px;margin-left:auto;margin-right:auto;line-height:1.5;`)}>{g.label}</div>
+                    <div style={st(`font-family:var(--display);font-size:clamp(44px,6vw,60px);font-weight:600;letter-spacing:-.03em;color:var(--text);line-height:1;`)}>{g.num}</div>
+                    <div style={st(`font-size:14.5px;color:var(--text-2);margin-top:14px;max-width:240px;margin-left:auto;margin-right:auto;line-height:1.5;`)}>{g.label}</div>
                   </div>
                 ))}
               </div>
