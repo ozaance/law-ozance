@@ -141,6 +141,7 @@
 
 @media (max-width: 900px) {
   .oz-nav-links { display: none !important; }
+  .oz-theme-toggle { display: none !important; }
   .oz-nav-inner { padding: 13px 18px !important; }
   .oz-cta-demo { padding: 9px 13px !important; font-size: 13px !important; }
   .oz-hero { grid-template-columns: 1fr !important; }

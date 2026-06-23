@@ -273,7 +273,7 @@ export function OzanceLanding() {
                 <a className="oz-navlink" href="#tarifs" style={st(`color:var(--text-2);text-decoration:none;font-size:14.5px;font-weight:450;`)}>Tarifs</a>
               </nav>
               <div style={st(`display:flex;align-items:center;gap:14px;`)}>
-                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Changer de thème" className="oz-theme" style={st(`width:38px;height:38px;border-radius:10px;border:1px solid var(--hairline);background:var(--surface);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;`)}>{theme === "dark" ? "☾" : "☀"}</button>
+                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Changer de thème" className="oz-theme oz-theme-toggle" style={st(`width:38px;height:38px;border-radius:10px;border:1px solid var(--hairline);background:var(--surface);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;`)}>{theme === "dark" ? "☾" : "☀"}</button>
                 <Link className="oz-navlink oz-nav-links" href="/login" style={st(`color:var(--text-2);text-decoration:none;font-size:14.5px;font-weight:500;`)}>Connexion</Link>
                 <Link className="oz-cta oz-cta-demo" href="/signup" style={st(`background:var(--accent);color:var(--accent-ink);text-decoration:none;font-size:14px;font-weight:600;padding:10px 18px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 0 var(--accent-hi) inset, 0 6px 18px var(--accent-shadow);`)}>Demander une démo</Link>
               </div>
