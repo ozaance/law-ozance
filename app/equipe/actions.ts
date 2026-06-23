@@ -5,11 +5,20 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireCabinet } from "@/lib/auth";
+import { sendInvitationEmail } from "@/lib/email";
+import { syncSeats } from "@/lib/seats";
+
+const ROLE_LABEL: Record<string, string> = {
+  admin: "administrateur",
+  avocat: "avocat",
+  assistant: "assistant",
+};
 
 export type EquipeState = {
   error?: string;
   message?: string;
   inviteUrl?: string;
+  emailed?: boolean;
 };
 
 const ROLES = ["avocat", "assistant"] as const;
@@ -70,9 +79,21 @@ export async function inviteMember(
 
   revalidatePath("/equipe");
   const base = await originBase();
+  const inviteUrl = `${base}/invitation/${token}`;
+
+  const { sent } = await sendInvitationEmail({
+    to: email,
+    cabinetNom: user.cabinetNom,
+    roleLabel: ROLE_LABEL[role] ?? role,
+    url: inviteUrl,
+  });
+
   return {
-    message: `Invitation créée pour ${email}.`,
-    inviteUrl: `${base}/invitation/${token}`,
+    message: sent
+      ? `Invitation envoyée par email à ${email}.`
+      : `Invitation créée pour ${email}.`,
+    inviteUrl,
+    emailed: sent,
   };
 }
 
@@ -136,6 +157,7 @@ export async function removeMember(
   const { error } = await supabase.rpc("remove_member", { p_member: memberId });
   if (error) return { error: error.message };
 
+  await syncSeats(user.cabinetId); // un membre en moins = un siège en moins
   revalidatePath("/equipe");
   return { message: "Membre retiré." };
 }

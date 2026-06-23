@@ -6,7 +6,7 @@ import { inviteMember } from "./actions";
 const inputCls =
   "rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100";
 
-export function InviteForm() {
+export function InviteForm({ memberCount }: { memberCount: number }) {
   const [state, action, pending] = useActionState(inviteMember, {});
   const [copied, setCopied] = useState(false);
 
@@ -23,10 +23,17 @@ export function InviteForm() {
 
   return (
     <div className="card max-w-xl p-5">
-      <h2 className="text-sm font-semibold">Inviter un collaborateur</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold">Inviter un collaborateur</h2>
+        <span className="shrink-0 text-xs text-muted">
+          {memberCount} siège{memberCount > 1 ? "s" : ""} facturé
+          {memberCount > 1 ? "s" : ""}
+        </span>
+      </div>
       <p className="mt-1 text-sm text-muted">
-        Générez un lien d&apos;invitation à transmettre à la personne (email,
-        messagerie…). Valable 14 jours.
+        Un email d&apos;invitation est envoyé automatiquement (et un lien à copier
+        reste disponible). Valable 14 jours. Chaque membre qui rejoint le cabinet
+        ajoute un siège facturé à votre abonnement.
       </p>
 
       <form action={action} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -57,7 +64,7 @@ export function InviteForm() {
           disabled={pending}
           className="rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
         >
-          {pending ? "…" : "Créer l'invitation"}
+          {pending ? "…" : "Inviter"}
         </button>
       </form>
 
@@ -73,7 +80,9 @@ export function InviteForm() {
             {state.message}
           </p>
           <p className="mt-1 text-xs text-muted">
-            Copiez ce lien et envoyez-le à la personne :
+            {state.emailed
+              ? "Lien d'invitation (au cas où l'email n'arrive pas) :"
+              : "Copiez ce lien et envoyez-le à la personne :"}
           </p>
           <div className="mt-2 flex items-center gap-2">
             <input

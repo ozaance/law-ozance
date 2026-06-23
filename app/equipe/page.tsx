@@ -51,6 +51,8 @@ export default async function EquipePage() {
       .returns<Invitation[]>(),
   ]);
 
+  const memberCount = members?.length ?? 0;
+
   return (
     <AppShell user={user}>
       <h1 className="text-xl font-semibold tracking-tight">Équipe</h1>
@@ -60,7 +62,7 @@ export default async function EquipePage() {
 
       {isAdmin && (
         <div className="mb-10">
-          <InviteForm />
+          <InviteForm memberCount={memberCount} />
         </div>
       )}
 

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, PLANS, TRIAL_DAYS, type PlanCode } from "@/lib/stripe";
+import { countMembers } from "@/lib/seats";
 
 async function baseUrl() {
   const h = await headers();
@@ -39,10 +40,11 @@ export async function createCheckoutSession(plan: PlanCode) {
   }
 
   const base = await baseUrl();
+  const seats = await countMembers(user.cabinetId); // facturation par siège
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
-    line_items: [{ price: PLANS[plan].priceId, quantity: 1 }],
+    line_items: [{ price: PLANS[plan].priceId, quantity: seats }],
     subscription_data: {
       trial_period_days: TRIAL_DAYS,
       metadata: { cabinet_id: user.cabinetId },
