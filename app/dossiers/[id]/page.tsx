@@ -81,7 +81,7 @@ export default async function DossierDetailPage({
       <div className="flex items-center justify-between">
         <Link
           href="/dossiers"
-          className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+          className="text-sm text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
         >
           ← Dossiers
         </Link>
@@ -99,7 +99,7 @@ export default async function DossierDetailPage({
 
       <section className="mb-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-500">
+          <h2 className="text-sm font-medium text-muted">
             Échéances &amp; événements ({evenements?.length ?? 0})
           </h2>
           <Link
@@ -110,7 +110,7 @@ export default async function DossierDetailPage({
           </Link>
         </div>
         {evenements?.length ? (
-          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+          <div className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
             {evenements.map((e) => (
               <Link
                 key={e.id}
@@ -133,7 +133,7 @@ export default async function DossierDetailPage({
                     {e.titre}
                   </span>
                 </span>
-                <span className="shrink-0 text-xs text-zinc-500">
+                <span className="shrink-0 text-xs text-muted">
                   {formatDateFr(e.date_evenement)}
                 </span>
               </Link>
@@ -148,7 +148,7 @@ export default async function DossierDetailPage({
 
       <section className="mb-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-500">
+          <h2 className="text-sm font-medium text-muted">
             Temps passé ({formatDuree(totalMinutes)})
           </h2>
           <span className="text-sm font-medium">
@@ -159,7 +159,7 @@ export default async function DossierDetailPage({
         <TimeEntryForm dossierId={dossier.id} tauxSuggere={tauxSuggere} />
 
         {temps?.length ? (
-          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+          <div className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
             {temps.map((t) => {
               const avocatNom = Array.isArray(t.avocat)
                 ? t.avocat[0]?.nom_complet
@@ -169,7 +169,7 @@ export default async function DossierDetailPage({
                   key={t.id}
                   className="flex items-center gap-3 px-4 py-2.5 text-sm"
                 >
-                  <span className="w-24 shrink-0 text-xs text-zinc-500">
+                  <span className="w-24 shrink-0 text-xs text-muted">
                     {formatDateFr(t.date_saisie).replace(/^\w+\.?\s/, "")}
                   </span>
                   <span className="w-16 shrink-0 font-medium">
@@ -207,13 +207,13 @@ export default async function DossierDetailPage({
 
       <section className="mb-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-500">
+          <h2 className="text-sm font-medium text-muted">
             Documents ({documents?.length ?? 0})
           </h2>
           <DocumentUpload cabinetId={user.cabinetId} dossierId={dossier.id} />
         </div>
         {documents?.length ? (
-          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+          <div className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
             {documents.map((d) => (
               <div
                 key={d.id}
@@ -240,7 +240,7 @@ export default async function DossierDetailPage({
         )}
       </section>
 
-      <h2 className="mb-4 text-sm font-medium text-zinc-500">Informations</h2>
+      <h2 className="mb-4 text-sm font-medium text-muted">Informations</h2>
       <DossierForm
         action={updateWithId}
         clients={clients}

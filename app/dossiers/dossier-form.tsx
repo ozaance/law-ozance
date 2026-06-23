@@ -20,7 +20,7 @@ export type DossierDefaults = {
 type Option = { id: string; label: string };
 
 const inputCls =
-  "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100";
+  "rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100";
 
 export function DossierForm({
   action,

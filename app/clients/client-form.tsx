@@ -44,7 +44,7 @@ export function ClientForm({
             type="button"
             onClick={() => setType(t)}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium capitalize transition-colors ${
-              type === t ? "bg-white shadow-sm dark:bg-zinc-800" : "text-zinc-500"
+              type === t ? "bg-white shadow-sm dark:bg-zinc-800" : "text-muted"
             }`}
           >
             {t}
@@ -93,7 +93,7 @@ export function ClientForm({
           name="notes"
           rows={3}
           defaultValue={defaults.notes ?? ""}
-          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100"
+          className="rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100"
         />
       </label>
 
@@ -149,7 +149,7 @@ function Field({
         required={required}
         placeholder={placeholder}
         defaultValue={defaultValue ?? ""}
-        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100"
+        className="rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100"
       />
     </label>
   );

@@ -54,7 +54,7 @@ export default async function AgendaPage() {
           <h1 className="text-xl font-semibold tracking-tight">
             Agenda &amp; Échéances
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted">
             {aVenir.length} à venir · {enRetard.length} en retard
           </p>
         </div>
@@ -67,8 +67,8 @@ export default async function AgendaPage() {
       </div>
 
       {!evenements.length ? (
-        <div className="mt-10 rounded-lg border border-dashed border-zinc-300 py-16 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500">Aucun événement.</p>
+        <div className="mt-10 rounded-lg border border-dashed border-border-strong py-16 text-center dark:border-border-strong">
+          <p className="text-sm text-muted">Aucun événement.</p>
           <Link
             href="/agenda/new"
             className="mt-3 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
@@ -108,7 +108,7 @@ function Section({
     <section>
       <h2
         className={`mb-3 text-sm font-semibold ${
-          tone === "danger" ? "text-red-600" : "text-zinc-500"
+          tone === "danger" ? "text-red-600" : "text-muted"
         }`}
       >
         {title} ({items.length})
@@ -116,7 +116,7 @@ function Section({
       {items.length === 0 ? (
         <p className="text-sm text-zinc-400">{emptyLabel}</p>
       ) : (
-        <div className="divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
           {items.map((e) => (
             <Row key={e.id} e={e} muted={muted} danger={tone === "danger"} />
           ))}
@@ -158,7 +158,7 @@ function Row({
             {e.titre}
           </span>
         </div>
-        <p className="mt-0.5 text-xs text-zinc-500">
+        <p className="mt-0.5 text-xs text-muted">
           <span className={danger ? "font-medium text-red-600" : ""}>
             {formatDateFr(e.date_evenement)}
             {e.heure ? ` · ${e.heure.slice(0, 5)}` : ""}

@@ -29,7 +29,7 @@ export default async function DossiersPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Dossiers</h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted">
             {dossiers?.length ?? 0} dossier{(dossiers?.length ?? 0) > 1 ? "s" : ""}
           </p>
         </div>
@@ -54,8 +54,8 @@ export default async function DossiersPage({
       </div>
 
       {!dossiers?.length ? (
-        <div className="mt-10 rounded-lg border border-dashed border-zinc-300 py-16 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500">Aucun dossier.</p>
+        <div className="mt-10 rounded-lg border border-dashed border-border-strong py-16 text-center dark:border-border-strong">
+          <p className="text-sm text-muted">Aucun dossier.</p>
           <Link
             href="/dossiers/new"
             className="mt-3 inline-block text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
@@ -64,7 +64,7 @@ export default async function DossiersPage({
           </Link>
         </div>
       ) : (
-        <div className="mt-5 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <div className="mt-5 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
           {dossiers.map((d) => {
             const clientNom = relNom(d.client);
             const avocatNom = relNom(d.avocat, "nom_complet");
@@ -83,7 +83,7 @@ export default async function DossiersPage({
                       {d.titre}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-zinc-500">
+                  <p className="mt-0.5 text-xs text-muted">
                     {clientNom}
                     {avocatNom ? ` · ${avocatNom}` : ""} ·{" "}
                     {TYPES_AFFAIRE[d.type_affaire as keyof typeof TYPES_AFFAIRE]}
@@ -125,7 +125,7 @@ function FilterChip({
       className={`rounded-full px-3 py-1 text-sm transition-colors ${
         active
           ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-          : "border border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900"
+          : "border border-border text-zinc-600 hover:bg-zinc-100 dark:border-border dark:text-zinc-400 dark:hover:bg-zinc-900"
       }`}
     >
       {label}

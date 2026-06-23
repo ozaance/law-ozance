@@ -44,7 +44,7 @@ export default async function FactureDetailPage({
       <div className="flex items-center justify-between">
         <Link
           href="/factures"
-          className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+          className="text-sm text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
         >
           ← Factures
         </Link>
@@ -54,13 +54,13 @@ export default async function FactureDetailPage({
         </div>
       </div>
 
-      <div className="mt-6 rounded-lg border border-zinc-200 p-6 dark:border-zinc-800">
+      <div className="mt-6 rounded-xl border border-border bg-surface p-6 shadow-[var(--shadow-sm)] dark:border-border">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="font-mono text-lg font-semibold">
               {facture.numero}
             </h1>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted">
               Émise le {formatDateFr(facture.date_emission)}
               {facture.date_echeance
                 ? ` · échéance ${formatDateFr(facture.date_echeance)}`
@@ -70,12 +70,12 @@ export default async function FactureDetailPage({
           <div className="text-right">
             <p className="text-sm font-medium">{client?.nom}</p>
             {client?.email && (
-              <p className="text-xs text-zinc-500">{client.email}</p>
+              <p className="text-xs text-muted">{client.email}</p>
             )}
           </div>
         </div>
 
-        <div className="mt-6 divide-y divide-zinc-200 border-y border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <div className="mt-6 divide-y divide-border border-y border-border dark:divide-border dark:border-border">
           {(lignes ?? []).map((l) => {
             const dossier = Array.isArray(l.dossier)
               ? l.dossier[0]
@@ -85,7 +85,7 @@ export default async function FactureDetailPage({
                 key={l.id}
                 className="flex items-center gap-3 py-2.5 text-sm"
               >
-                <span className="w-20 shrink-0 text-xs text-zinc-500">
+                <span className="w-20 shrink-0 text-xs text-muted">
                   {l.date_saisie}
                 </span>
                 <span className="w-16 shrink-0 font-medium">
@@ -97,7 +97,7 @@ export default async function FactureDetailPage({
                   </span>{" "}
                   {l.description ?? "—"}
                 </span>
-                <span className="w-20 shrink-0 text-right text-xs text-zinc-500">
+                <span className="w-20 shrink-0 text-right text-xs text-muted">
                   {l.taux ? `${l.taux} €/h` : "—"}
                 </span>
                 <span className="w-24 shrink-0 text-right">
@@ -120,7 +120,7 @@ export default async function FactureDetailPage({
         </div>
 
         {facture.notes && (
-          <p className="mt-4 border-t border-zinc-200 pt-4 text-sm text-zinc-500 dark:border-zinc-800">
+          <p className="mt-4 border-t border-border pt-4 text-sm text-muted dark:border-border">
             {facture.notes}
           </p>
         )}

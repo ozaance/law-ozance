@@ -27,7 +27,7 @@ export default async function FacturesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Factures</h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted">
             {factures?.length ?? 0} facture
             {(factures?.length ?? 0) > 1 ? "s" : ""} · {formatEuros(totalDu)} en
             attente de paiement
@@ -42,11 +42,11 @@ export default async function FacturesPage() {
       </div>
 
       {!factures?.length ? (
-        <div className="mt-10 rounded-lg border border-dashed border-zinc-300 py-16 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500">Aucune facture.</p>
+        <div className="mt-10 rounded-lg border border-dashed border-border-strong py-16 text-center dark:border-border-strong">
+          <p className="text-sm text-muted">Aucune facture.</p>
         </div>
       ) : (
-        <div className="mt-6 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <div className="mt-6 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
           {factures.map((f) => {
             const clientNom = Array.isArray(f.client)
               ? f.client[0]?.nom

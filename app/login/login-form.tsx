@@ -23,7 +23,7 @@ export function LoginForm() {
           className={`${tabBase} ${
             mode === "password"
               ? "bg-white shadow-sm dark:bg-zinc-800"
-              : "text-zinc-500"
+              : "text-muted"
           }`}
         >
           Mot de passe
@@ -34,7 +34,7 @@ export function LoginForm() {
           className={`${tabBase} ${
             mode === "magic"
               ? "bg-white shadow-sm dark:bg-zinc-800"
-              : "text-zinc-500"
+              : "text-muted"
           }`}
         >
           Lien magique
@@ -64,7 +64,7 @@ export function LoginForm() {
         </form>
       )}
 
-      <p className="mt-6 text-center text-sm text-zinc-500">
+      <p className="mt-6 text-center text-sm text-muted">
         Pas encore de compte ?{" "}
         <Link href="/signup" className="font-medium text-zinc-900 underline dark:text-zinc-100">
           Créer un cabinet
@@ -95,7 +95,7 @@ function Field({
         type={type}
         required
         autoComplete={autoComplete}
-        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100"
+        className="rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100"
       />
     </label>
   );

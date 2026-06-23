@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { createTimeEntry } from "./actions";
 
 const inputCls =
-  "rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100";
+  "rounded-md border border-border-strong bg-white px-2 py-1.5 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100";
 
 export function TimeEntryForm({
   dossierId,
@@ -27,11 +27,11 @@ export function TimeEntryForm({
     <form
       ref={formRef}
       action={formAction}
-      className="mt-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800"
+      className="mt-3 rounded-lg border border-border p-3 dark:border-border"
     >
       <div className="flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-1">
-          <span className="text-xs text-zinc-500">Date</span>
+          <span className="text-xs text-muted">Date</span>
           <input
             name="date_saisie"
             type="date"
@@ -40,7 +40,7 @@ export function TimeEntryForm({
           />
         </label>
         <label className="flex w-20 flex-col gap-1">
-          <span className="text-xs text-zinc-500">Heures</span>
+          <span className="text-xs text-muted">Heures</span>
           <input
             name="heures"
             type="number"
@@ -52,7 +52,7 @@ export function TimeEntryForm({
           />
         </label>
         <label className="flex w-24 flex-col gap-1">
-          <span className="text-xs text-zinc-500">Taux €/h</span>
+          <span className="text-xs text-muted">Taux €/h</span>
           <input
             name="taux"
             type="number"
@@ -63,7 +63,7 @@ export function TimeEntryForm({
           />
         </label>
         <label className="flex min-w-[12rem] flex-1 flex-col gap-1">
-          <span className="text-xs text-zinc-500">Description</span>
+          <span className="text-xs text-muted">Description</span>
           <input
             name="description"
             placeholder="Recherche, rédaction, RDV…"

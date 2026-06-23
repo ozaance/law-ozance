@@ -24,14 +24,14 @@ export default async function NewFacturePage({
       <AppShell user={user}>
         <Link
           href="/factures"
-          className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+          className="text-sm text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
         >
           ← Factures
         </Link>
         <h1 className="mb-6 mt-2 text-xl font-semibold tracking-tight">
           Nouvelle facture — choisir un client
         </h1>
-        <div className="divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
           {(clients ?? []).map((c) => (
             <Link
               key={c.id}
@@ -78,18 +78,18 @@ export default async function NewFacturePage({
     <AppShell user={user}>
       <Link
         href="/factures"
-        className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+        className="text-sm text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
       >
         ← Factures
       </Link>
       <h1 className="mb-1 mt-2 text-xl font-semibold tracking-tight">
         Nouvelle facture
       </h1>
-      <p className="mb-6 text-sm text-zinc-500">{client?.nom}</p>
+      <p className="mb-6 text-sm text-muted">{client?.nom}</p>
 
       {lignes.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-zinc-300 py-12 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500">
+        <div className="rounded-lg border border-dashed border-border-strong py-12 text-center dark:border-border-strong">
+          <p className="text-sm text-muted">
             Aucune saisie de temps à facturer pour ce client.
           </p>
           <p className="mt-1 text-xs text-zinc-400">

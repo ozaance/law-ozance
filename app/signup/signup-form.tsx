@@ -38,7 +38,7 @@ export function SignupForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-500">
+      <p className="mt-6 text-center text-sm text-muted">
         Déjà un compte ?{" "}
         <Link href="/login" className="font-medium text-zinc-900 underline dark:text-zinc-100">
           Se connecter
@@ -71,7 +71,7 @@ function Field({
         type={type}
         required
         autoComplete={autoComplete}
-        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100"
+        className="rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100"
       />
       {hint && <span className="text-xs text-zinc-400">{hint}</span>}
     </label>

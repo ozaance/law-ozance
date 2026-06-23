@@ -23,7 +23,7 @@ export function ToggleDone({
       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs transition-colors disabled:opacity-50 ${
         termine
           ? "border-emerald-500 bg-emerald-500 text-white"
-          : "border-zinc-300 hover:border-zinc-500 dark:border-zinc-600"
+          : "border-border-strong hover:border-zinc-500 dark:border-zinc-600"
       }`}
     >
       {termine ? "✓" : ""}

@@ -40,12 +40,12 @@ export default async function AbonnementPage({
   return (
     <AppShell user={user}>
       <h1 className="text-xl font-semibold tracking-tight">Abonnement</h1>
-      <p className="mb-8 mt-1 text-sm text-zinc-500">
+      <p className="mb-8 mt-1 text-sm text-muted">
         Votre formule LexFlow
       </p>
 
       {actif ? (
-        <div className="rounded-lg border border-zinc-200 p-6 dark:border-zinc-800">
+        <div className="rounded-xl border border-border bg-surface p-6 shadow-[var(--shadow-sm)] dark:border-border">
           <div className="flex items-center gap-2">
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -63,7 +63,7 @@ export default async function AbonnementPage({
             )}
           </div>
           {cabinet?.abonnement_fin && (
-            <p className="mt-3 text-sm text-zinc-500">
+            <p className="mt-3 text-sm text-muted">
               {statut === "trialing" ? "Essai jusqu'au" : "Prochaine échéance le"}{" "}
               {formatDateFr(cabinet.abonnement_fin.slice(0, 10))}
             </p>
@@ -71,7 +71,7 @@ export default async function AbonnementPage({
           <form action={openBillingPortal} className="mt-5">
             <button
               type="submit"
-              className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
+              className="rounded-md border border-border-strong px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-border-strong dark:hover:bg-zinc-900"
             >
               Gérer l&apos;abonnement
             </button>
@@ -85,36 +85,54 @@ export default async function AbonnementPage({
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(Object.entries(PLANS) as [PlanCode, (typeof PLANS)[PlanCode]][]).map(
-              ([code, plan]) => (
-                <div
-                  key={code}
-                  className="flex flex-col rounded-lg border border-zinc-200 p-6 dark:border-zinc-800"
-                >
-                  <h2 className="text-lg font-semibold">{plan.nom}</h2>
-                  <p className="mt-1">
-                    <span className="text-3xl font-bold">{plan.prix} €</span>
-                    <span className="text-sm text-zinc-500"> / mois</span>
-                  </p>
-                  <ul className="mt-4 flex flex-1 flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2">
-                        <span className="text-emerald-600">✓</span> {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <form
-                    action={createCheckoutSession.bind(null, code)}
-                    className="mt-6"
+              ([code, plan]) => {
+                const recommande = code === "cabinet";
+                return (
+                  <div
+                    key={code}
+                    className={`relative flex flex-col rounded-xl bg-surface p-6 shadow-[var(--shadow-sm)] ${
+                      recommande
+                        ? "border-2 border-accent shadow-[var(--shadow-md)]"
+                        : "border border-border"
+                    }`}
                   >
-                    <button
-                      type="submit"
-                      className="w-full rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
+                    {recommande && (
+                      <span className="absolute -top-3 right-6 rounded-full bg-accent px-3 py-0.5 text-xs font-medium text-accent-foreground">
+                        Recommandé
+                      </span>
+                    )}
+                    <h2 className="text-lg font-semibold">{plan.nom}</h2>
+                    <p className="mt-1">
+                      <span className="tnum text-3xl font-bold">
+                        {plan.prix} €
+                      </span>
+                      <span className="text-sm text-muted"> / mois</span>
+                    </p>
+                    <ul className="mt-4 flex flex-1 flex-col gap-2 text-sm text-muted">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-center gap-2">
+                          <span className="text-accent">✓</span> {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <form
+                      action={createCheckoutSession.bind(null, code)}
+                      className="mt-6"
                     >
-                      Commencer l&apos;essai
-                    </button>
-                  </form>
-                </div>
-              ),
+                      <button
+                        type="submit"
+                        className={`w-full rounded-md px-4 py-2.5 text-sm font-medium transition-all hover:opacity-90 ${
+                          recommande
+                            ? "bg-accent text-accent-foreground"
+                            : "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                        }`}
+                      >
+                        Commencer l&apos;essai
+                      </button>
+                    </form>
+                  </div>
+                );
+              },
             )}
           </div>
         </>

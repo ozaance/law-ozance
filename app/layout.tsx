@@ -13,8 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LexFlow",
-  description: "CRM pour cabinets d'avocats",
+  title: {
+    default: "LexFlow — CRM pour cabinets d'avocats",
+    template: "%s · LexFlow",
+  },
+  description:
+    "Le logiciel de gestion des cabinets d'avocats : clients, dossiers, échéances, facturation et documents.",
 };
 
 export default function RootLayout({

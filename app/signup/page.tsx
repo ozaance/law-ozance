@@ -2,10 +2,13 @@ import { SignupForm } from "./signup-form";
 
 export default function SignupPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6">
-      <div className="mb-8 text-center">
+    <main className="flex min-h-dvh flex-col items-center justify-center px-6">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-xl font-semibold text-accent-foreground shadow-[var(--shadow-md)]">
+          §
+        </span>
         <h1 className="text-2xl font-semibold tracking-tight">LexFlow</h1>
-        <p className="mt-1 text-sm text-zinc-500">Créez votre compte</p>
+        <p className="mt-1 text-sm text-muted">Créez votre compte</p>
       </div>
       <SignupForm />
     </main>

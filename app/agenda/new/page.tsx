@@ -18,7 +18,7 @@ export default async function NewEvenementPage({
     <AppShell user={user}>
       <Link
         href="/agenda"
-        className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+        className="text-sm text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
       >
         ← Agenda
       </Link>

@@ -60,7 +60,7 @@ export function DocumentUpload({
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900">
+      <label className="cursor-pointer rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-border-strong dark:hover:bg-zinc-900">
         {busy ? "Envoi…" : "+ Téléverser"}
         <input
           ref={inputRef}

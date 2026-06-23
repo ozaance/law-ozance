@@ -54,7 +54,7 @@ export default async function ClientDetailPage({
       <div className="flex items-center justify-between">
         <Link
           href="/clients"
-          className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+          className="text-sm text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
         >
           ← Clients
         </Link>
@@ -67,7 +67,7 @@ export default async function ClientDetailPage({
 
       <section className="mb-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-500">
+          <h2 className="text-sm font-medium text-muted">
             Dossiers ({dossiers?.length ?? 0})
           </h2>
           <Link
@@ -78,7 +78,7 @@ export default async function ClientDetailPage({
           </Link>
         </div>
         {dossiers?.length ? (
-          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+          <div className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
             {dossiers.map((d) => (
               <Link
                 key={d.id}
@@ -110,7 +110,7 @@ export default async function ClientDetailPage({
 
       <section className="mb-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-500">
+          <h2 className="text-sm font-medium text-muted">
             Factures ({factures?.length ?? 0})
           </h2>
           <Link
@@ -121,7 +121,7 @@ export default async function ClientDetailPage({
           </Link>
         </div>
         {factures?.length ? (
-          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+          <div className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
             {factures.map((f) => (
               <Link
                 key={f.id}
@@ -151,7 +151,7 @@ export default async function ClientDetailPage({
         )}
       </section>
 
-      <h2 className="mb-4 text-sm font-medium text-zinc-500">Informations</h2>
+      <h2 className="mb-4 text-sm font-medium text-muted">Informations</h2>
       <ClientForm
         action={updateWithId}
         defaults={{

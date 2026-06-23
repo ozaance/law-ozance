@@ -20,7 +20,7 @@ export function StatutControl({
       onChange={(e) =>
         startTransition(() => updateStatutFacture(id, e.target.value))
       }
-      className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900"
+      className="rounded-md border border-border-strong bg-white px-3 py-1.5 text-sm outline-none focus:border-zinc-900 disabled:opacity-50 dark:border-border-strong dark:bg-zinc-900"
     >
       {Object.entries(STATUTS_FACTURE).map(([v, label]) => (
         <option key={v} value={v}>

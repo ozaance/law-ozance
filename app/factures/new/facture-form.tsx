@@ -15,7 +15,7 @@ export type Ligne = {
 };
 
 const inputCls =
-  "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100";
+  "rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100";
 
 export function FactureForm({
   clientId,
@@ -50,11 +50,11 @@ export function FactureForm({
     <form action={action} className="flex flex-col gap-6">
       <input type="hidden" name="client_id" value={clientId} />
 
-      <div className="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:border-border">
         {lignes.map((l) => (
           <label
             key={l.id}
-            className="flex cursor-pointer items-center gap-3 border-b border-zinc-200 px-4 py-2.5 text-sm last:border-0 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+            className="flex cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0 hover:bg-zinc-50 dark:border-border dark:hover:bg-zinc-900"
           >
             <input
               type="checkbox"
@@ -64,7 +64,7 @@ export function FactureForm({
               onChange={() => toggle(l.id)}
               className="h-4 w-4"
             />
-            <span className="w-20 shrink-0 text-xs text-zinc-500">{l.date}</span>
+            <span className="w-20 shrink-0 text-xs text-muted">{l.date}</span>
             <span className="w-16 shrink-0 font-medium">
               {formatDuree(l.dureeMinutes)}
             </span>
@@ -82,7 +82,7 @@ export function FactureForm({
       </div>
 
       <div className="flex items-center justify-end gap-3 text-sm">
-        <span className="text-zinc-500">
+        <span className="text-muted">
           {checked.size} ligne{checked.size > 1 ? "s" : ""} sélectionnée
           {checked.size > 1 ? "s" : ""}
         </span>
