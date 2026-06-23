@@ -4,12 +4,14 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { signup } from "@/app/auth/actions";
 
-export function SignupForm() {
+export function SignupForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState(signup, {});
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   return (
     <div className="w-full max-w-sm">
       <form action={action} className="flex flex-col gap-4">
+        {next && <input type="hidden" name="next" value={next} />}
         <Field label="Nom complet" name="nom_complet" type="text" autoComplete="name" />
         <Field label="Email" name="email" type="email" autoComplete="email" />
         <Field
@@ -40,7 +42,7 @@ export function SignupForm() {
 
       <p className="mt-6 text-center text-sm text-muted">
         Déjà un compte ?{" "}
-        <Link href="/login" className="font-medium text-zinc-900 underline dark:text-zinc-100">
+        <Link href={loginHref} className="font-medium text-zinc-900 underline dark:text-zinc-100">
           Se connecter
         </Link>
       </p>

@@ -9,10 +9,13 @@ type Mode = "password" | "magic";
 const tabBase =
   "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors";
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const [mode, setMode] = useState<Mode>("password");
   const [pwState, pwAction, pwPending] = useActionState(login, {});
   const [mlState, mlAction, mlPending] = useActionState(magicLink, {});
+  const signupHref = next
+    ? `/signup?next=${encodeURIComponent(next)}`
+    : "/signup";
 
   return (
     <div className="w-full max-w-sm">
@@ -43,6 +46,7 @@ export function LoginForm() {
 
       {mode === "password" ? (
         <form action={pwAction} className="flex flex-col gap-4">
+          {next && <input type="hidden" name="next" value={next} />}
           <Field label="Email" name="email" type="email" autoComplete="email" />
           <Field
             label="Mot de passe"
@@ -55,6 +59,7 @@ export function LoginForm() {
         </form>
       ) : (
         <form action={mlAction} className="flex flex-col gap-4">
+          {next && <input type="hidden" name="next" value={next} />}
           <Field label="Email" name="email" type="email" autoComplete="email" />
           {mlState.error && <ErrorMsg>{mlState.error}</ErrorMsg>}
           {mlState.message && <InfoMsg>{mlState.message}</InfoMsg>}
@@ -66,7 +71,7 @@ export function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-muted">
         Pas encore de compte ?{" "}
-        <Link href="/signup" className="font-medium text-zinc-900 underline dark:text-zinc-100">
+        <Link href={signupHref} className="font-medium text-zinc-900 underline dark:text-zinc-100">
           Créer un cabinet
         </Link>
       </p>

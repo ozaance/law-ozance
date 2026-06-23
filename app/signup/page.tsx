@@ -1,6 +1,11 @@
 import { SignupForm } from "./signup-form";
 
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
       <div className="mb-8 flex flex-col items-center text-center">
@@ -11,7 +16,7 @@ export default function SignupPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Ozance</h1>
         <p className="mt-1 text-sm text-muted">Créez votre compte</p>
       </div>
-      <SignupForm />
+      <SignupForm next={next} />
     </main>
   );
 }

@@ -11,6 +11,12 @@ function originUrl(path: string, host: string, proto: string) {
   return `${proto}://${host}${path}`;
 }
 
+// N'accepte qu'un chemin interne relatif, pour éviter les redirections ouvertes.
+function safeNext(value: FormDataEntryValue | null): string {
+  const n = String(value ?? "");
+  return n.startsWith("/") && !n.startsWith("//") ? n : "/dashboard";
+}
+
 // --- Connexion email + mot de passe ---
 export async function login(
   _prev: ActionState,
@@ -25,7 +31,7 @@ export async function login(
   if (error) return { error: "Email ou mot de passe incorrect." };
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(safeNext(formData.get("next")));
 }
 
 // --- Inscription email + mot de passe ---
@@ -43,6 +49,7 @@ export async function signup(
   const h = await headers();
   const host = h.get("host")!;
   const proto = h.get("x-forwarded-proto") ?? "http";
+  const next = safeNext(formData.get("next"));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
@@ -50,7 +57,11 @@ export async function signup(
     password,
     options: {
       data: { nom_complet: nomComplet },
-      emailRedirectTo: originUrl("/auth/confirm", host, proto),
+      emailRedirectTo: originUrl(
+        `/auth/confirm?next=${encodeURIComponent(next)}`,
+        host,
+        proto,
+      ),
     },
   });
 
@@ -72,11 +83,18 @@ export async function magicLink(
   const h = await headers();
   const host = h.get("host")!;
   const proto = h.get("x-forwarded-proto") ?? "http";
+  const next = safeNext(formData.get("next"));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: originUrl("/auth/confirm", host, proto) },
+    options: {
+      emailRedirectTo: originUrl(
+        `/auth/confirm?next=${encodeURIComponent(next)}`,
+        host,
+        proto,
+      ),
+    },
   });
 
   if (error) return { error: error.message };

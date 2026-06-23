@@ -1,6 +1,11 @@
 import { LoginForm } from "./login-form";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
       <div className="mb-8 flex flex-col items-center text-center">
@@ -13,7 +18,7 @@ export default function LoginPage() {
           Connectez-vous à votre cabinet
         </p>
       </div>
-      <LoginForm />
+      <LoginForm next={next} />
     </main>
   );
 }
