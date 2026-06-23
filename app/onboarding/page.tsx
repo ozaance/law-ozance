@@ -20,11 +20,12 @@ export default async function OnboardingPage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
       <div className="mb-8 flex max-w-sm flex-col items-center text-center">
-        <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-xl font-semibold text-accent-foreground shadow-[var(--shadow-md)]">
-          §
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/ozance-mark-navy.png" alt="Ozance" width={44} className="mb-4 h-11 w-auto dark:hidden" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/ozance-mark-gold.png" alt="Ozance" width={44} className="mb-4 hidden h-11 w-auto dark:block" />
         <h1 className="text-2xl font-semibold tracking-tight">
-          Bienvenue sur LexFlow
+          Bienvenue sur Ozance
         </h1>
         <p className="mt-1 text-sm text-muted">
           Créez votre cabinet pour commencer.

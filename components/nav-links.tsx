@@ -45,7 +45,7 @@ export function NavLinks({ variant = "sidebar" }: { variant?: "sidebar" | "bar" 
             aria-current={active ? "page" : undefined}
             className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? "bg-accent-soft text-accent"
+                ? "bg-accent-soft text-foreground"
                 : "text-muted hover:bg-black/[0.04] hover:text-foreground dark:hover:bg-white/5"
             }`}
           >

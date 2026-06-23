@@ -1,34 +1,38 @@
 @import "tailwindcss";
 
 /* =====================================================================
-   LexFlow — système de design
-   Encre neutre (ardoise) + un seul accent bleu "legal", surfaces calmes.
+   Ozance — système de design
+   Encre navy + accent or, surfaces chaudes. Aligné sur la marque Ozance.
    ===================================================================== */
 :root {
-  --canvas: #f6f7f9; /* fond d'application teinté */
-  --surface: #ffffff; /* cartes, barre latérale */
-  --foreground: #0f172a; /* ardoise 900 */
-  --muted: #64748b; /* ardoise 500 */
-  --border: #e7e9ee;
-  --border-strong: #d4d8e0;
+  --canvas: #f8f7f4; /* off-white chaud */
+  --surface: #ffffff;
+  --surface-2: #f4f2ed;
+  --foreground: #111827; /* navy 900 */
+  --muted: #566072;
+  --border: rgba(17, 24, 39, 0.1);
+  --border-strong: rgba(17, 24, 39, 0.16);
 
-  --accent: #2f44c4; /* bleu legal, accent unique */
-  --accent-hover: #2839aa;
-  --accent-soft: #eef0fb;
+  --accent: #d9b27a; /* or Ozance */
+  --accent-ink: #21180a; /* encre lisible sur l'or */
+  --accent-soft: rgba(217, 178, 122, 0.16);
+  --navy: #2c3747;
 
-  --shadow-color: 222 35% 25%; /* ombre teintée navy (H S L) */
+  --shadow-color: 218 24% 23%;
 }
 
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-accent: var(--accent);
-  --color-accent-foreground: #ffffff;
+  --color-accent-foreground: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-navy: var(--navy);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -36,21 +40,23 @@
   --radius-card: 0.75rem;
 
   --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.06);
-  --shadow-md: 0 4px 16px -4px hsl(var(--shadow-color) / 0.1);
+  --shadow-md: 0 4px 16px -4px hsl(var(--shadow-color) / 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #0b0d13;
-    --surface: #14171f;
-    --foreground: #e9eaee;
-    --muted: #8b93a3;
-    --border: #232733;
-    --border-strong: #2e3340;
-    --accent: #6f82f2;
-    --accent-hover: #8595f5;
-    --accent-soft: #1a1f33;
-    --shadow-color: 222 40% 4%;
+    --canvas: #0b1220;
+    --surface: #111827;
+    --surface-2: #161f30;
+    --foreground: #f5f5f4;
+    --muted: #9aa6b8;
+    --border: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --accent: #d9b27a;
+    --accent-ink: #1a1206;
+    --accent-soft: rgba(217, 178, 122, 0.16);
+    --navy: #2c3747;
+    --shadow-color: 218 45% 3%;
   }
 }
 
@@ -64,11 +70,9 @@
     font-family: var(--font-sans), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  /* Chiffres alignés pour les données */
   .tnum {
     font-variant-numeric: tabular-nums;
   }
-  /* Feedback tactile + focus accessible sur tout l'interactif */
   a,
   button,
   select,
@@ -90,8 +94,7 @@
     border-radius: 4px;
   }
   ::selection {
-    background: var(--accent);
-    color: #fff;
+    background: rgba(217, 178, 122, 0.28);
   }
 }
 
@@ -102,4 +105,48 @@
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-sm);
   }
+}
+
+/* =====================================================================
+   Landing Ozance — animations & responsive (classes du prototype)
+   ===================================================================== */
+@keyframes ozfloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.oz-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.oz-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .oz-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+.oz-navlink:hover { color: var(--text) !important; }
+.oz-cta:hover { transform: translateY(-2px); box-shadow: 0 1px 0 var(--accent-hi) inset, 0 16px 40px var(--accent-shadow) !important; }
+.oz-ghost:hover { border-color: var(--accent) !important; transform: translateY(-2px); }
+.oz-feature:hover { background: var(--surface-2) !important; }
+.oz-quote:hover { transform: translateY(-4px); box-shadow: var(--shadow-md) !important; }
+.oz-footlink:hover { color: var(--accent) !important; }
+.oz-theme:hover { color: var(--accent) !important; border-color: var(--accent) !important; }
+
+@media (max-width: 900px) {
+  .oz-nav-links { display: none !important; }
+  .oz-hero { grid-template-columns: 1fr !important; }
+  .oz-grid-2 { grid-template-columns: 1fr !important; }
+  .oz-grid-3 { grid-template-columns: 1fr !important; }
+  .oz-grid-feat { grid-template-columns: 1fr !important; }
+  .oz-dash-shell { grid-template-columns: 1fr !important; }
+  .oz-dash-side { display: none !important; }
+  .oz-pad { padding-left: 22px !important; padding-right: 22px !important; }
+  .oz-h1 { font-size: 44px !important; }
 }

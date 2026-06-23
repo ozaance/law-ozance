@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "LexFlow — CRM pour cabinets d'avocats",
-    template: "%s · LexFlow",
+    default: "Ozance — La plateforme qui pilote votre cabinet",
+    template: "%s · Ozance",
   },
   description:
-    "Le logiciel de gestion des cabinets d'avocats : clients, dossiers, échéances, facturation et documents.",
+    "Centralisez vos dossiers, automatisez votre facturation et gardez le contrôle de votre activité depuis un seul espace.",
 };
 
 export default function RootLayout({

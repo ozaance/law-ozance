@@ -41,7 +41,7 @@ export default async function AbonnementPage({
     <AppShell user={user}>
       <h1 className="text-xl font-semibold tracking-tight">Abonnement</h1>
       <p className="mb-8 mt-1 text-sm text-muted">
-        Votre formule LexFlow
+        Votre formule Ozance
       </p>
 
       {actif ? (

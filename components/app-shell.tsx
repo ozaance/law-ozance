@@ -12,10 +12,21 @@ function initials(user: CurrentUser): string {
 function Brand() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5">
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-base font-semibold text-accent-foreground">
-        §
-      </span>
-      <span className="text-base font-semibold tracking-tight">LexFlow</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/ozance-mark-navy.png"
+        alt="Ozance"
+        width={24}
+        className="block h-6 w-auto dark:hidden"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/ozance-mark-gold.png"
+        alt="Ozance"
+        width={24}
+        className="hidden h-6 w-auto dark:block"
+      />
+      <span className="text-base font-semibold tracking-tight">Ozance</span>
     </Link>
   );
 }

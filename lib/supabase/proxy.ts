@@ -33,10 +33,10 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Routes publiques (pas besoin d'être connecté).
+  const pathname = request.nextUrl.pathname;
   const publicPaths = ["/login", "/signup", "/auth", "/stripe/webhook"];
-  const isPublic = publicPaths.some((p) =>
-    request.nextUrl.pathname.startsWith(p),
-  );
+  // "/" (landing publique) en correspondance exacte ; les autres en préfixe.
+  const isPublic = pathname === "/" || publicPaths.some((p) => pathname.startsWith(p));
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

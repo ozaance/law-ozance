@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { OzanceLanding } from "@/components/landing/ozance-landing";
 
 export default function Home() {
-  redirect("/dashboard");
+  return <OzanceLanding />;
 }
