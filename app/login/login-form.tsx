@@ -54,6 +54,14 @@ export function LoginForm({ next }: { next?: string }) {
             type="password"
             autoComplete="current-password"
           />
+          <div className="-mt-2 text-right">
+            <Link
+              href="/mot-de-passe-oublie"
+              className="text-xs font-medium text-muted hover:text-zinc-900 dark:hover:text-zinc-100"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </div>
           {pwState.error && <ErrorMsg>{pwState.error}</ErrorMsg>}
           <SubmitButton pending={pwPending}>Se connecter</SubmitButton>
         </form>

@@ -34,7 +34,15 @@ export async function updateSession(request: NextRequest) {
 
   // Routes publiques (pas besoin d'être connecté).
   const pathname = request.nextUrl.pathname;
-  const publicPaths = ["/login", "/signup", "/auth", "/stripe/webhook"];
+  const publicPaths = [
+    "/login",
+    "/signup",
+    "/auth",
+    "/stripe/webhook",
+    "/mot-de-passe-oublie",
+    "/nouveau-mot-de-passe",
+    "/invitation",
+  ];
   // "/" (landing publique) en correspondance exacte ; les autres en préfixe.
   const isPublic = pathname === "/" || publicPaths.some((p) => pathname.startsWith(p));
 

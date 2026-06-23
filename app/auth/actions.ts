@@ -102,6 +102,64 @@ export async function magicLink(
   return { message: "Lien de connexion envoyé. Consultez votre boîte mail." };
 }
 
+// --- Demande de réinitialisation du mot de passe (envoi du lien) ---
+export async function requestPasswordReset(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) return { error: "Email requis." };
+
+  const h = await headers();
+  const host = h.get("host")!;
+  const proto = h.get("x-forwarded-proto") ?? "http";
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: originUrl(
+      "/auth/confirm?next=/nouveau-mot-de-passe",
+      host,
+      proto,
+    ),
+  });
+  // Message générique : on n'indique pas si l'adresse existe (anti-énumération).
+  if (error) return { error: error.message };
+
+  return {
+    message:
+      "Si un compte existe pour cette adresse, un lien de réinitialisation vient d'être envoyé.",
+  };
+}
+
+// --- Définition d'un nouveau mot de passe (après clic sur le lien) ---
+export async function updatePassword(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (password.length < 8)
+    return { error: "Le mot de passe doit faire au moins 8 caractères." };
+  if (password !== confirm)
+    return { error: "Les mots de passe ne correspondent pas." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return {
+      error: "Lien expiré ou invalide. Relancez la procédure de réinitialisation.",
+    };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}
+
 // --- Déconnexion ---
 export async function signout() {
   const supabase = await createClient();
