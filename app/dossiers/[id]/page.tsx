@@ -15,7 +15,14 @@ import {
 } from "@/app/agenda/constants";
 import { TimeEntryForm } from "@/app/temps/time-entry-form";
 import { DeleteEntryButton } from "@/app/temps/delete-entry-button";
-import { formatDuree, formatEuros, montantLigne } from "@/lib/format";
+import {
+  formatDuree,
+  formatEuros,
+  formatTaille,
+  montantLigne,
+} from "@/lib/format";
+import { DocumentUpload } from "@/app/documents/document-upload";
+import { DocumentRowActions } from "@/app/documents/document-row-actions";
 
 export default async function DossierDetailPage({
   params,
@@ -59,6 +66,12 @@ export default async function DossierDetailPage({
     const m = montantLigne(t.duree_minutes, t.taux);
     return s + (m ?? 0);
   }, 0);
+
+  const { data: documents } = await supabase
+    .from("documents")
+    .select("id, nom, chemin, taille, created_at")
+    .eq("dossier_id", dossier.id)
+    .order("created_at", { ascending: false });
 
   const { clients, avocats } = await getDossierFormOptions();
   const updateWithId = updateDossierAction.bind(null, dossier.id);
@@ -188,6 +201,41 @@ export default async function DossierDetailPage({
         ) : (
           <p className="mt-3 text-sm text-zinc-400">
             Aucune saisie de temps pour ce dossier.
+          </p>
+        )}
+      </section>
+
+      <section className="mb-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-zinc-500">
+            Documents ({documents?.length ?? 0})
+          </h2>
+          <DocumentUpload cabinetId={user.cabinetId} dossierId={dossier.id} />
+        </div>
+        {documents?.length ? (
+          <div className="mt-3 divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            {documents.map((d) => (
+              <div
+                key={d.id}
+                className="flex items-center justify-between gap-3 px-4 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{d.nom}</p>
+                  <p className="text-xs text-zinc-400">
+                    {formatTaille(d.taille)}
+                  </p>
+                </div>
+                <DocumentRowActions
+                  id={d.id}
+                  chemin={d.chemin}
+                  dossierId={dossier.id}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-zinc-400">
+            Aucun document pour ce dossier.
           </p>
         )}
       </section>

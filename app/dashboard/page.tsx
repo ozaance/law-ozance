@@ -27,7 +27,12 @@ const MODULES = [
     href: "/factures",
     ready: true,
   },
-  { name: "Documents", desc: "GED par dossier, modèles", ready: false },
+  {
+    name: "Documents",
+    desc: "Fichiers par dossier (GED)",
+    href: "/dossiers",
+    ready: true,
+  },
 ];
 
 export default async function DashboardPage() {

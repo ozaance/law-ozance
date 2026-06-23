@@ -20,6 +20,13 @@ export function heuresToMinutes(heures: number): number {
   return Math.round(heures * 60);
 }
 
+export function formatTaille(octets: number | null | undefined): string {
+  if (octets == null) return "—";
+  if (octets < 1024) return `${octets} o`;
+  if (octets < 1024 * 1024) return `${(octets / 1024).toFixed(0)} Ko`;
+  return `${(octets / (1024 * 1024)).toFixed(1)} Mo`;
+}
+
 export function montantLigne(
   dureeMinutes: number,
   taux: number | null,
