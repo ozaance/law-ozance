@@ -1,7 +1,39 @@
 import Link from "next/link";
 import { signout } from "@/app/auth/actions";
 import type { CurrentUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./nav-links";
+import { FloatingTimer } from "@/app/temps/floating-timer";
+
+// Chrono actif de l'utilisateur + dossiers (pour le widget flottant global).
+async function getTimerContext(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("active_timers")
+    .select("dossier_id, description, started_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!data) return { active: null, dossiers: [] };
+
+  // On ne charge la liste des dossiers que lorsqu'un chrono tourne.
+  const { data: dossiersRaw } = await supabase
+    .from("dossiers")
+    .select("id, reference, titre")
+    .order("created_at", { ascending: false });
+
+  return {
+    active: {
+      dossierId: data.dossier_id,
+      description: data.description,
+      startedAt: data.started_at,
+    },
+    dossiers: (dossiersRaw ?? []).map((d) => ({
+      id: d.id,
+      label: `${d.reference} — ${d.titre}`,
+    })),
+  };
+}
 
 function initials(user: CurrentUser): string {
   const base = user.nomComplet ?? user.email ?? "";
@@ -68,13 +100,15 @@ function UserBlock({ user }: { user: CurrentUser }) {
   );
 }
 
-export function AppShell({
+export async function AppShell({
   user,
   children,
 }: {
   user: CurrentUser;
   children: React.ReactNode;
 }) {
+  const { active: activeTimer, dossiers: timerDossiers } =
+    await getTimerContext(user.id);
   return (
     <div className="min-h-dvh">
       {/* Barre latérale (desktop) */}
@@ -114,6 +148,9 @@ export function AppShell({
           {children}
         </main>
       </div>
+
+      {/* Chrono flottant global (déplaçable, présent sur toutes les pages) */}
+      <FloatingTimer active={activeTimer} dossiers={timerDossiers} />
     </div>
   );
 }
