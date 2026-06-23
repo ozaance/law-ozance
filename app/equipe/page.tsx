@@ -2,6 +2,7 @@ import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { InviteForm } from "./invite-form";
+import { MemberControls } from "./member-controls";
 import { revokeInvitation } from "./actions";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -86,9 +87,18 @@ export default async function EquipePage() {
                   <p className="truncate text-xs text-muted">{m.email}</p>
                 )}
               </div>
-              <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted">
-                {ROLE_LABEL[m.role] ?? m.role}
-              </span>
+              {isAdmin ? (
+                <MemberControls
+                  memberId={m.id}
+                  role={m.role}
+                  isSelf={m.id === user.id}
+                  memberName={m.nom_complet ?? m.email ?? "ce membre"}
+                />
+              ) : (
+                <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted">
+                  {ROLE_LABEL[m.role] ?? m.role}
+                </span>
+              )}
             </div>
           ))}
         </div>

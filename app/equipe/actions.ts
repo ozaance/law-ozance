@@ -13,6 +13,7 @@ export type EquipeState = {
 };
 
 const ROLES = ["avocat", "assistant"] as const;
+const ALL_ROLES = ["admin", "avocat", "assistant"] as const;
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 async function originBase() {
@@ -91,4 +92,50 @@ export async function revokeInvitation(formData: FormData): Promise<void> {
     .eq("status", "pending");
 
   revalidatePath("/equipe");
+}
+
+// --- Changer le rôle d'un membre (admin uniquement) ---
+export async function updateMemberRole(
+  _prev: EquipeState,
+  formData: FormData,
+): Promise<EquipeState> {
+  const user = await requireCabinet();
+  if (user.role !== "admin")
+    return { error: "Action réservée aux administrateurs." };
+
+  const memberId = String(formData.get("member_id") ?? "");
+  const role = String(formData.get("role") ?? "");
+  if (!memberId) return { error: "Membre invalide." };
+  if (!ALL_ROLES.includes(role as (typeof ALL_ROLES)[number]))
+    return { error: "Rôle invalide." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_member_role", {
+    p_member: memberId,
+    p_role: role,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/equipe");
+  return { message: "Rôle mis à jour." };
+}
+
+// --- Retirer un membre du cabinet (admin uniquement) ---
+export async function removeMember(
+  _prev: EquipeState,
+  formData: FormData,
+): Promise<EquipeState> {
+  const user = await requireCabinet();
+  if (user.role !== "admin")
+    return { error: "Action réservée aux administrateurs." };
+
+  const memberId = String(formData.get("member_id") ?? "");
+  if (!memberId) return { error: "Membre invalide." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("remove_member", { p_member: memberId });
+  if (error) return { error: error.message };
+
+  revalidatePath("/equipe");
+  return { message: "Membre retiré." };
 }
