@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Routes publiques (pas besoin d'être connecté).
-  const publicPaths = ["/login", "/signup", "/auth"];
+  const publicPaths = ["/login", "/signup", "/auth", "/stripe/webhook"];
   const isPublic = publicPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p),
   );
