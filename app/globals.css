@@ -141,12 +141,20 @@
 
 @media (max-width: 900px) {
   .oz-nav-links { display: none !important; }
+  .oz-nav-inner { padding: 13px 18px !important; }
+  .oz-cta-demo { padding: 9px 13px !important; font-size: 13px !important; }
   .oz-hero { grid-template-columns: 1fr !important; }
   .oz-grid-2 { grid-template-columns: 1fr !important; }
   .oz-grid-3 { grid-template-columns: 1fr !important; }
   .oz-grid-feat { grid-template-columns: 1fr !important; }
   .oz-dash-shell { grid-template-columns: 1fr !important; }
   .oz-dash-side { display: none !important; }
+  .oz-kpis { grid-template-columns: 1fr 1fr !important; }
+  .oz-dash-mid { grid-template-columns: 1fr !important; }
   .oz-pad { padding-left: 22px !important; padding-right: 22px !important; }
   .oz-h1 { font-size: 44px !important; }
+}
+
+@media (max-width: 560px) {
+  .oz-kpis { grid-template-columns: 1fr !important; }
 }
