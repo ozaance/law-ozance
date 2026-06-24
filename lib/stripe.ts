@@ -1,6 +1,18 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Initialisation paresseuse : on ne crée le client Stripe qu'à la première
+// utilisation (runtime), pas à l'import. Évite de casser le build si
+// STRIPE_SECRET_KEY n'est pas défini au moment de la collecte des pages.
+let _stripe: Stripe | null = null;
+function stripeClient(): Stripe {
+  return (_stripe ??= new Stripe(process.env.STRIPE_SECRET_KEY!));
+}
+
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    return Reflect.get(stripeClient(), prop);
+  },
+}) as Stripe;
 
 export const TRIAL_DAYS = 14;
 
