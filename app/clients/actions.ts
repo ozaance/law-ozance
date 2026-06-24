@@ -14,14 +14,19 @@ function parseForm(formData: FormData) {
     nom,
     siren: emptyToNull(formData.get("siren")),
     forme_juridique: emptyToNull(formData.get("forme_juridique")),
+    tva_intra: emptyToNull(formData.get("tva_intra")),
     email: emptyToNull(formData.get("email")),
     telephone: emptyToNull(formData.get("telephone")),
+    adresse: emptyToNull(formData.get("adresse")),
+    code_postal: emptyToNull(formData.get("code_postal")),
+    ville: emptyToNull(formData.get("ville")),
     notes: emptyToNull(formData.get("notes")),
   };
   // Les champs entreprise n'ont pas de sens pour un particulier.
   if (payload.type === "particulier") {
     payload.siren = null;
     payload.forme_juridique = null;
+    payload.tva_intra = null;
   }
   return payload;
 }

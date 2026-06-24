@@ -29,7 +29,9 @@ export default async function ClientDetailPage({
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, type, nom, siren, forme_juridique, email, telephone, notes")
+    .select(
+      "id, type, nom, siren, forme_juridique, tva_intra, email, telephone, adresse, code_postal, ville, notes",
+    )
     .eq("id", id)
     .single();
 
@@ -159,8 +161,12 @@ export default async function ClientDetailPage({
           nom: client.nom,
           siren: client.siren,
           forme_juridique: client.forme_juridique,
+          tva_intra: client.tva_intra,
           email: client.email,
           telephone: client.telephone,
+          adresse: client.adresse,
+          code_postal: client.code_postal,
+          ville: client.ville,
           notes: client.notes,
         }}
         submitLabel="Enregistrer"

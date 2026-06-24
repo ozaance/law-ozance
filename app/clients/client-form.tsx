@@ -11,8 +11,12 @@ export type ClientDefaults = {
   nom?: string;
   siren?: string | null;
   forme_juridique?: string | null;
+  tva_intra?: string | null;
   email?: string | null;
   telephone?: string | null;
+  adresse?: string | null;
+  code_postal?: string | null;
+  ville?: string | null;
   notes?: string | null;
 };
 
@@ -60,15 +64,23 @@ export function ClientForm({
       />
 
       {type === "entreprise" && (
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="SIREN" name="siren" defaultValue={defaults.siren ?? ""} />
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="SIREN" name="siren" defaultValue={defaults.siren ?? ""} />
+            <Field
+              label="Forme juridique"
+              name="forme_juridique"
+              placeholder="SAS, SARL…"
+              defaultValue={defaults.forme_juridique ?? ""}
+            />
+          </div>
           <Field
-            label="Forme juridique"
-            name="forme_juridique"
-            placeholder="SAS, SARL…"
-            defaultValue={defaults.forme_juridique ?? ""}
+            label="N° TVA intracommunautaire"
+            name="tva_intra"
+            placeholder="FR…"
+            defaultValue={defaults.tva_intra ?? ""}
           />
-        </div>
+        </>
       )}
 
       <div className="grid grid-cols-2 gap-4">
@@ -83,6 +95,20 @@ export function ClientForm({
           name="telephone"
           defaultValue={defaults.telephone ?? ""}
         />
+      </div>
+
+      <Field
+        label="Adresse"
+        name="adresse"
+        defaultValue={defaults.adresse ?? ""}
+      />
+      <div className="grid grid-cols-2 gap-4">
+        <Field
+          label="Code postal"
+          name="code_postal"
+          defaultValue={defaults.code_postal ?? ""}
+        />
+        <Field label="Ville" name="ville" defaultValue={defaults.ville ?? ""} />
       </div>
 
       <label className="flex flex-col gap-1.5">

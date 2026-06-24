@@ -68,7 +68,7 @@ export default async function NewFacturePage({
       id: e.id,
       date: e.date_saisie,
       dureeMinutes: e.duree_minutes,
-      description: e.description ?? "—",
+      description: e.description ?? "",
       dossier: (dossier as { reference: string } | null)?.reference ?? "",
       montant: montantLigne(e.duree_minutes, e.taux),
     };
@@ -83,22 +83,11 @@ export default async function NewFacturePage({
         ← Factures
       </Link>
       <h1 className="mb-1 mt-2 text-xl font-semibold tracking-tight">
-        Nouvelle facture
+        Nouvelle note d&apos;honoraires
       </h1>
       <p className="mb-6 text-sm text-muted">{client?.nom}</p>
 
-      {lignes.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border-strong py-12 text-center dark:border-border-strong">
-          <p className="text-sm text-muted">
-            Aucune saisie de temps à facturer pour ce client.
-          </p>
-          <p className="mt-1 text-xs text-zinc-400">
-            Ajoutez du temps depuis les dossiers du client.
-          </p>
-        </div>
-      ) : (
-        <FactureForm clientId={clientId} lignes={lignes} />
-      )}
+      <FactureForm clientId={clientId} lignes={lignes} />
     </AppShell>
   );
 }
