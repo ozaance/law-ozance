@@ -146,11 +146,14 @@ export function OzanceLanding() {
   const rootRef = useRef<HTMLDivElement>(null);
   const t = palette(theme);
 
-  // Thème automatique selon l'heure locale : jour (7h–19h) clair, sinon sombre.
-  // (Réglé après le montage pour éviter tout décalage d'hydratation.)
+  // Respecte la préférence système : on garde le sombre par défaut et on ne
+  // bascule en clair que si l'utilisateur le préfère (réglé après montage
+  // pour éviter tout décalage d'hydratation).
   useEffect(() => {
-    const h = new Date().getHours();
-    setTheme(h >= 7 && h < 19 ? "light" : "dark");
+    if (window.matchMedia?.("(prefers-color-scheme: light)").matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- préférence navigateur, lue une seule fois au montage
+      setTheme("light");
+    }
   }, []);
 
   useEffect(() => {

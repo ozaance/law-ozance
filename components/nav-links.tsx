@@ -12,6 +12,7 @@ const NAV = [
   { href: "/factures", label: "Facturation" },
   { href: "/equipe", label: "Équipe" },
   { href: "/abonnement", label: "Abonnement" },
+  { href: "/parametres", label: "Paramètres" },
 ];
 
 export function NavLinks({ variant = "sidebar" }: { variant?: "sidebar" | "bar" }) {

@@ -26,13 +26,41 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://law-ozance-pbki.vercel.app";
+
+const description =
+  "Centralisez vos dossiers, automatisez votre facturation et gardez le contrôle de votre activité depuis un seul espace.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Ozance — La plateforme qui pilote votre cabinet",
     template: "%s · Ozance",
   },
-  description:
-    "Centralisez vos dossiers, automatisez votre facturation et gardez le contrôle de votre activité depuis un seul espace.",
+  description,
+  applicationName: "Ozance",
+  keywords: [
+    "logiciel avocat",
+    "gestion cabinet d'avocats",
+    "facturation avocat",
+    "suivi du temps",
+    "dossiers juridiques",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: siteUrl,
+    siteName: "Ozance",
+    title: "Ozance — La plateforme qui pilote votre cabinet",
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ozance — La plateforme qui pilote votre cabinet",
+    description,
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
