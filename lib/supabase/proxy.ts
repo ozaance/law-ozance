@@ -42,6 +42,10 @@ export async function updateSession(request: NextRequest) {
     "/mot-de-passe-oublie",
     "/nouveau-mot-de-passe",
     "/invitation",
+    // SEO / crawlers : accessibles sans authentification.
+    "/robots.txt",
+    "/sitemap.xml",
+    "/opengraph-image",
   ];
   // "/" (landing publique) en correspondance exacte ; les autres en préfixe.
   const isPublic = pathname === "/" || publicPaths.some((p) => pathname.startsWith(p));
