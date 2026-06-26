@@ -79,10 +79,17 @@ export default async function AbonnementPage({
         </div>
       ) : (
         <>
-          <p className="mb-6 rounded-lg bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
-            🎁 Essai gratuit de {TRIAL_DAYS} jours — sans engagement, annulable à
-            tout moment.
-          </p>
+          <div className="mb-6 rounded-lg border border-border bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+            <p className="font-medium text-foreground">
+              🎁 {TRIAL_DAYS} jours d&apos;essai gratuit
+            </p>
+            <p className="mt-1">
+              Votre carte est enregistrée pour activer votre compte, mais{" "}
+              <strong>aucun débit n&apos;a lieu pendant l&apos;essai</strong>.
+              L&apos;abonnement ne démarre qu&apos;au {TRIAL_DAYS}
+              <sup>e</sup> jour, et reste annulable à tout moment en un clic.
+            </p>
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(Object.entries(PLANS) as [PlanCode, (typeof PLANS)[PlanCode]][]).map(
               ([code, plan]) => {

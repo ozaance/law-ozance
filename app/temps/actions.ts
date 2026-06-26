@@ -74,12 +74,55 @@ export async function startTimer(
     dossier_id: dossierId,
     description,
     started_at: new Date().toISOString(),
+    accumulated_seconds: 0,
   });
   if (error) return { error: error.message };
 
   // Layout : le widget flottant (AppShell) se met à jour sur toutes les pages.
   revalidatePath("/", "layout");
   return {};
+}
+
+// Met le chrono en pause : on fige le temps écoulé dans accumulated_seconds.
+export async function pauseTimer(): Promise<void> {
+  const user = await requireCabinet();
+  const supabase = await createClient();
+  const { data: timer } = await supabase
+    .from("active_timers")
+    .select("started_at, accumulated_seconds")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!timer || !timer.started_at) return; // déjà en pause ou inexistant
+
+  const segment = Math.floor(
+    (Date.now() - new Date(timer.started_at).getTime()) / 1000,
+  );
+  await supabase
+    .from("active_timers")
+    .update({
+      accumulated_seconds: (timer.accumulated_seconds ?? 0) + Math.max(0, segment),
+      started_at: null,
+    })
+    .eq("user_id", user.id);
+  revalidatePath("/", "layout");
+}
+
+// Reprend le chrono après une pause.
+export async function resumeTimer(): Promise<void> {
+  const user = await requireCabinet();
+  const supabase = await createClient();
+  const { data: timer } = await supabase
+    .from("active_timers")
+    .select("started_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!timer || timer.started_at) return; // déjà en cours ou inexistant
+
+  await supabase
+    .from("active_timers")
+    .update({ started_at: new Date().toISOString() })
+    .eq("user_id", user.id);
+  revalidatePath("/", "layout");
 }
 
 // Attribuer / changer le dossier du chrono en cours.
@@ -100,15 +143,17 @@ export async function stopTimer(): Promise<void> {
 
   const { data: timer } = await supabase
     .from("active_timers")
-    .select("dossier_id, description, started_at")
+    .select("dossier_id, description, started_at, accumulated_seconds")
     .eq("user_id", user.id)
     .maybeSingle();
   if (!timer) return;
 
-  const minutes = Math.max(
-    1,
-    Math.round((Date.now() - new Date(timer.started_at).getTime()) / 60000),
-  );
+  // Temps total = temps accumulé (pauses) + segment en cours s'il tourne.
+  const segment = timer.started_at
+    ? Math.floor((Date.now() - new Date(timer.started_at).getTime()) / 1000)
+    : 0;
+  const totalSeconds = (timer.accumulated_seconds ?? 0) + Math.max(0, segment);
+  const minutes = Math.max(1, Math.round(totalSeconds / 60));
 
   let tauxDossier: number | null = null;
   if (timer.dossier_id) {

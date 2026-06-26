@@ -10,7 +10,7 @@ async function getTimerContext(userId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("active_timers")
-    .select("dossier_id, description, started_at")
+    .select("dossier_id, description, started_at, accumulated_seconds")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -27,6 +27,7 @@ async function getTimerContext(userId: string) {
       dossierId: data.dossier_id,
       description: data.description,
       startedAt: data.started_at,
+      accumulatedSeconds: data.accumulated_seconds ?? 0,
     },
     dossiers: (dossiersRaw ?? []).map((d) => ({
       id: d.id,

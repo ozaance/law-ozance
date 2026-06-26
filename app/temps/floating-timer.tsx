@@ -3,13 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { stopTimer, cancelTimer, setTimerDossier } from "./actions";
+import {
+  stopTimer,
+  cancelTimer,
+  pauseTimer,
+  resumeTimer,
+  setTimerDossier,
+} from "./actions";
 import { DossierSelect, type DossierOption } from "./dossier-select";
 
 export type FloatingActive = {
   dossierId: string | null;
   description: string | null;
-  startedAt: string;
+  startedAt: string | null; // null = en pause
+  accumulatedSeconds: number;
 };
 
 const POS_KEY = "oz-timer-pos";
@@ -50,12 +57,14 @@ export function FloatingTimer({
     setPos(next);
   }, []);
 
-  // Tic chaque seconde quand un chrono tourne.
+  const running = active?.startedAt != null;
+
+  // Tic chaque seconde uniquement quand le chrono tourne (figé en pause).
   useEffect(() => {
-    if (!active) return;
+    if (!active || !running) return;
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [active]);
+  }, [active, running]);
 
   function onPointerDown(e: React.PointerEvent) {
     if (!pos) return;
@@ -86,7 +95,9 @@ export function FloatingTimer({
   // Pas de widget si aucun chrono, sur la page /temps (qui a déjà le sien), ou avant calcul de position.
   if (!active || pathname.startsWith("/temps") || !pos) return null;
 
-  const elapsed = now - new Date(active.startedAt).getTime();
+  const elapsed =
+    active.accumulatedSeconds * 1000 +
+    (active.startedAt ? now - new Date(active.startedAt).getTime() : 0);
 
   return (
     <div
@@ -99,9 +110,17 @@ export function FloatingTimer({
         onPointerUp={onPointerUp}
         className="flex cursor-grab items-center gap-2 rounded-t-xl border-b border-border bg-surface-2 px-3 py-1.5 active:cursor-grabbing"
       >
-        <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-        <span className="text-xs font-medium uppercase tracking-wide text-accent">
-          Chrono en cours
+        <span
+          className={`h-2 w-2 rounded-full ${
+            running ? "animate-pulse bg-accent" : "bg-muted"
+          }`}
+        />
+        <span
+          className={`text-xs font-medium uppercase tracking-wide ${
+            running ? "text-accent" : "text-muted"
+          }`}
+        >
+          {running ? "Chrono en cours" : "Chrono en pause"}
         </span>
         <span className="ml-auto text-[10px] text-muted">⠿ déplacer</span>
       </div>
@@ -117,10 +136,37 @@ export function FloatingTimer({
           <p className="mt-1 truncate text-xs text-muted">{active.description}</p>
         )}
         <div className="mt-2 flex items-center justify-between gap-2">
-          <span className="font-mono text-2xl font-semibold tabular-nums">
+          <span
+            className={`font-mono text-2xl font-semibold tabular-nums ${
+              running ? "" : "text-muted"
+            }`}
+          >
             {fmtElapsed(elapsed)}
           </span>
           <div className="flex gap-1.5">
+            {running ? (
+              <form action={pauseTimer}>
+                <button
+                  type="submit"
+                  title="Pause"
+                  aria-label="Mettre en pause"
+                  className="rounded-md border border-border-strong px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-black/[0.04] dark:hover:bg-white/5"
+                >
+                  ❚❚
+                </button>
+              </form>
+            ) : (
+              <form action={resumeTimer}>
+                <button
+                  type="submit"
+                  title="Reprendre"
+                  aria-label="Reprendre"
+                  className="rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90"
+                >
+                  ▶
+                </button>
+              </form>
+            )}
             <form action={stopTimer}>
               <button
                 type="submit"

@@ -67,7 +67,7 @@ export default async function TempsPage({
   // Chrono actif.
   const { data: timerRow } = await supabase
     .from("active_timers")
-    .select("dossier_id, description, started_at")
+    .select("dossier_id, description, started_at, accumulated_seconds")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -162,6 +162,7 @@ export default async function TempsPage({
         dossierId: timerRow.dossier_id,
         description: timerRow.description,
         startedAt: timerRow.started_at,
+        accumulatedSeconds: timerRow.accumulated_seconds ?? 0,
       }
     : null;
 

@@ -1,7 +1,14 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { startTimer, stopTimer, cancelTimer, setTimerDossier } from "./actions";
+import {
+  startTimer,
+  stopTimer,
+  cancelTimer,
+  pauseTimer,
+  resumeTimer,
+  setTimerDossier,
+} from "./actions";
 import { DossierSelect, type DossierOption } from "./dossier-select";
 
 const inputCls =
@@ -10,7 +17,8 @@ const inputCls =
 type ActiveTimer = {
   dossierId: string | null;
   description: string | null;
-  startedAt: string;
+  startedAt: string | null; // null = en pause
+  accumulatedSeconds: number;
 };
 
 function fmtElapsed(ms: number): string {
@@ -28,20 +36,33 @@ function RunningTimer({
   timer: ActiveTimer;
   dossiers: DossierOption[];
 }) {
+  const running = timer.startedAt != null;
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    if (!running) return; // figé en pause
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, []);
-  const elapsed = now - new Date(timer.startedAt).getTime();
+  }, [running]);
+
+  const elapsed =
+    timer.accumulatedSeconds * 1000 +
+    (timer.startedAt ? now - new Date(timer.startedAt).getTime() : 0);
 
   return (
     <div className="card p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-accent">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-            En cours
+          <div
+            className={`flex items-center gap-2 text-xs font-medium uppercase tracking-wide ${
+              running ? "text-accent" : "text-muted"
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                running ? "animate-pulse bg-accent" : "bg-muted"
+              }`}
+            />
+            {running ? "En cours" : "En pause"}
           </div>
           <div className="mt-2 w-56 max-w-full">
             <DossierSelect
@@ -56,10 +77,33 @@ function RunningTimer({
             </p>
           )}
         </div>
-        <div className="font-mono text-3xl font-semibold tabular-nums tracking-tight">
+        <div
+          className={`font-mono text-3xl font-semibold tabular-nums tracking-tight ${
+            running ? "" : "text-muted"
+          }`}
+        >
           {fmtElapsed(elapsed)}
         </div>
         <div className="flex gap-2">
+          {running ? (
+            <form action={pauseTimer}>
+              <button
+                type="submit"
+                className="rounded-md border border-border-strong px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/[0.04] dark:hover:bg-white/5"
+              >
+                Pause
+              </button>
+            </form>
+          ) : (
+            <form action={resumeTimer}>
+              <button
+                type="submit"
+                className="rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
+              >
+                Reprendre
+              </button>
+            </form>
+          )}
           <form action={stopTimer}>
             <button
               type="submit"

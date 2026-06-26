@@ -56,5 +56,46 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Gating abonnement : les routes de l'application exigent un cabinet ET un
+  // abonnement actif (essai, actif ou paiement en retard). Sinon on redirige
+  // vers /onboarding (pas de cabinet) ou /abonnement (pas d'abonnement actif).
+  // /abonnement et /onboarding restent toujours accessibles pour sortir du sas.
+  // Désactivé par défaut (phase de test) : activer avec SUBSCRIPTION_REQUIRED=true.
+  const gateEnabled = process.env.SUBSCRIPTION_REQUIRED === "true";
+  const APP_PREFIXES = [
+    "/dashboard",
+    "/clients",
+    "/dossiers",
+    "/agenda",
+    "/temps",
+    "/factures",
+    "/equipe",
+    "/documents",
+    "/parametres",
+  ];
+  if (gateEnabled && user && APP_PREFIXES.some((p) => pathname.startsWith(p))) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("cabinet_id, cabinet:cabinets(abonnement_statut)")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!profile?.cabinet_id) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      return NextResponse.redirect(url);
+    }
+
+    const cab = Array.isArray(profile.cabinet)
+      ? profile.cabinet[0]
+      : (profile.cabinet as { abonnement_statut: string | null } | null);
+    const statut = cab?.abonnement_statut ?? "inactif";
+    if (!["trialing", "active", "past_due"].includes(statut)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/abonnement";
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }
