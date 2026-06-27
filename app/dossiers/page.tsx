@@ -16,13 +16,30 @@ export default async function DossiersPage({
   let query = supabase
     .from("dossiers")
     .select(
-      "id, reference, titre, type_affaire, statut, client:clients(nom), avocat:profiles(nom_complet)",
+      "id, reference, titre, type_affaire, statut, client:clients(id, nom), avocat:profiles(nom_complet)",
     )
     .order("created_at", { ascending: false });
 
   if (statut && statut in STATUTS) query = query.eq("statut", statut);
 
   const { data: dossiers } = await query;
+
+  // Regroupement par client (tri alphabétique des clients).
+  const groupes = new Map<
+    string,
+    { clientNom: string; dossiers: NonNullable<typeof dossiers> }
+  >();
+  for (const d of dossiers ?? []) {
+    const client = Array.isArray(d.client) ? d.client[0] : d.client;
+    const cid = (client as { id?: string } | null)?.id ?? "_sans";
+    const cnom = (client as { nom?: string } | null)?.nom ?? "Sans client";
+    const g = groupes.get(cid) ?? { clientNom: cnom, dossiers: [] };
+    g.dossiers.push(d);
+    groupes.set(cid, g);
+  }
+  const groupesTries = [...groupes.values()].sort((a, b) =>
+    a.clientNom.localeCompare(b.clientNom, "fr"),
+  );
 
   return (
     <AppShell user={user}>
@@ -64,41 +81,56 @@ export default async function DossiersPage({
           </Link>
         </div>
       ) : (
-        <div className="mt-5 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
-          {dossiers.map((d) => {
-            const clientNom = relNom(d.client);
-            const avocatNom = relNom(d.avocat, "nom_complet");
-            return (
-              <Link
-                key={d.id}
-                href={`/dossiers/${d.id}`}
-                className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-zinc-400">
-                      {d.reference}
-                    </span>
-                    <span className="truncate text-sm font-medium">
-                      {d.titre}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-xs text-muted">
-                    {clientNom}
-                    {avocatNom ? ` · ${avocatNom}` : ""} ·{" "}
-                    {TYPES_AFFAIRE[d.type_affaire as keyof typeof TYPES_AFFAIRE]}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    STATUT_COLORS[d.statut as Statut]
-                  }`}
-                >
-                  {STATUTS[d.statut as Statut]}
+        <div className="mt-5 flex flex-col gap-6">
+          {groupesTries.map((g) => (
+            <div key={g.clientNom}>
+              <div className="mb-2 flex items-baseline gap-2 px-1">
+                <h2 className="text-sm font-semibold">{g.clientNom}</h2>
+                <span className="text-xs text-muted">
+                  {g.dossiers.length} dossier
+                  {g.dossiers.length > 1 ? "s" : ""}
                 </span>
-              </Link>
-            );
-          })}
+              </div>
+              <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:divide-border dark:border-border">
+                {g.dossiers.map((d) => {
+                  const avocatNom = relNom(d.avocat, "nom_complet");
+                  return (
+                    <Link
+                      key={d.id}
+                      href={`/dossiers/${d.id}`}
+                      className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs text-zinc-400">
+                            {d.reference}
+                          </span>
+                          <span className="truncate text-sm font-medium">
+                            {d.titre}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {avocatNom ? `${avocatNom} · ` : ""}
+                          {
+                            TYPES_AFFAIRE[
+                              d.type_affaire as keyof typeof TYPES_AFFAIRE
+                            ]
+                          }
+                        </p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                          STATUT_COLORS[d.statut as Statut]
+                        }`}
+                      >
+                        {STATUTS[d.statut as Statut]}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </AppShell>

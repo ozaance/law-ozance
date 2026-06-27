@@ -227,8 +227,10 @@ export default async function DossierDetailPage({
                 </div>
                 <DocumentRowActions
                   id={d.id}
+                  nom={d.nom}
                   chemin={d.chemin}
                   dossierId={dossier.id}
+                  cabinetId={user.cabinetId}
                 />
               </div>
             ))}

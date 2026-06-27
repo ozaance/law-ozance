@@ -141,6 +141,62 @@ export async function updateMemberRole(
   return { message: "Rôle mis à jour." };
 }
 
+// --- Taux horaire facturé d'un membre (admin uniquement) ---
+export async function setMemberRate(
+  _prev: EquipeState,
+  formData: FormData,
+): Promise<EquipeState> {
+  const user = await requireCabinet();
+  if (user.role !== "admin")
+    return { error: "Action réservée aux administrateurs." };
+
+  const memberId = String(formData.get("member_id") ?? "");
+  if (!memberId) return { error: "Membre invalide." };
+  const raw = String(formData.get("taux") ?? "").trim();
+  const rate = raw === "" ? null : Number(raw.replace(",", "."));
+  if (rate != null && (Number.isNaN(rate) || rate < 0))
+    return { error: "Taux invalide." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_member_rate", {
+    p_member: memberId,
+    p_rate: rate,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/equipe");
+  revalidatePath("/temps");
+  return { message: "Taux mis à jour." };
+}
+
+// --- Coût horaire interne d'un membre (admin uniquement) ---
+export async function setMemberCost(
+  _prev: EquipeState,
+  formData: FormData,
+): Promise<EquipeState> {
+  const user = await requireCabinet();
+  if (user.role !== "admin")
+    return { error: "Action réservée aux administrateurs." };
+
+  const memberId = String(formData.get("member_id") ?? "");
+  if (!memberId) return { error: "Membre invalide." };
+  const raw = String(formData.get("cout") ?? "").trim();
+  const cost = raw === "" ? null : Number(raw.replace(",", "."));
+  if (cost != null && (Number.isNaN(cost) || cost < 0))
+    return { error: "Coût invalide." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_member_cost", {
+    p_member: memberId,
+    p_cost: cost,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/equipe");
+  revalidatePath("/temps");
+  return { message: "Coût mis à jour." };
+}
+
 // --- Retirer un membre du cabinet (admin uniquement) ---
 export async function removeMember(
   _prev: EquipeState,

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { InviteForm } from "./invite-form";
 import { MemberControls } from "./member-controls";
+import { RateInputs } from "./rate-inputs";
 import { revokeInvitation } from "./actions";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -16,6 +17,8 @@ type Member = {
   email: string | null;
   nom_complet: string | null;
   role: string;
+  taux_horaire: number | null;
+  cout_horaire: number | null;
 };
 
 type Invitation = {
@@ -39,7 +42,7 @@ export default async function EquipePage() {
   const [{ data: members }, { data: invitations }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, email, nom_complet, role")
+      .select("id, email, nom_complet, role, taux_horaire, cout_horaire")
       .eq("cabinet_id", user.cabinetId)
       .order("created_at", { ascending: true })
       .returns<Member[]>(),
@@ -72,34 +75,54 @@ export default async function EquipePage() {
           Membres{" "}
           <span className="font-normal text-muted">({members?.length ?? 0})</span>
         </h2>
+        {isAdmin && (
+          <p className="mb-3 text-xs text-muted">
+            Réglez ici le <strong className="text-foreground">taux facturé</strong>{" "}
+            (ce que le client paie) et le{" "}
+            <strong className="text-foreground">coût</strong> (salaire chargé) de
+            chaque collaborateur. Ils alimentent la facturation et la
+            rentabilité.
+          </p>
+        )}
         <div className="card divide-y divide-border">
           {members?.map((m) => (
-            <div key={m.id} className="flex items-center gap-3 p-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-xs font-semibold text-accent">
-                {initials(m.nom_complet, m.email)}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">
-                  {m.nom_complet ?? m.email}
-                  {m.id === user.id && (
-                    <span className="ml-2 text-xs text-muted">(vous)</span>
+            <div key={m.id} className="flex flex-col gap-3 p-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-xs font-semibold text-accent">
+                  {initials(m.nom_complet, m.email)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
+                    {m.nom_complet ?? m.email}
+                    {m.id === user.id && (
+                      <span className="ml-2 text-xs text-muted">(vous)</span>
+                    )}
+                  </p>
+                  {m.nom_complet && (
+                    <p className="truncate text-xs text-muted">{m.email}</p>
                   )}
-                </p>
-                {m.nom_complet && (
-                  <p className="truncate text-xs text-muted">{m.email}</p>
+                </div>
+                {isAdmin ? (
+                  <MemberControls
+                    memberId={m.id}
+                    role={m.role}
+                    isSelf={m.id === user.id}
+                    memberName={m.nom_complet ?? m.email ?? "ce membre"}
+                  />
+                ) : (
+                  <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted">
+                    {ROLE_LABEL[m.role] ?? m.role}
+                  </span>
                 )}
               </div>
-              {isAdmin ? (
-                <MemberControls
-                  memberId={m.id}
-                  role={m.role}
-                  isSelf={m.id === user.id}
-                  memberName={m.nom_complet ?? m.email ?? "ce membre"}
-                />
-              ) : (
-                <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted">
-                  {ROLE_LABEL[m.role] ?? m.role}
-                </span>
+              {isAdmin && (
+                <div className="border-t border-border pt-3">
+                  <RateInputs
+                    memberId={m.id}
+                    taux={m.taux_horaire}
+                    cout={m.cout_horaire}
+                  />
+                </div>
               )}
             </div>
           ))}

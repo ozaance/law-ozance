@@ -1,10 +1,10 @@
+import Link from "next/link";
 import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { formatDuree, formatEuros, montantLigne } from "@/lib/format";
 import { formatDateFr } from "@/app/agenda/constants";
 import { TimerWidget } from "./timer-widget";
-import { CostInput } from "./cost-input";
 import { DossierSelect } from "./dossier-select";
 import { removeEntry, assignEntryDossier } from "./actions";
 
@@ -42,11 +42,12 @@ type MyEntry = {
   dossier: { reference: string; titre: string } | { reference: string; titre: string }[] | null;
 };
 
-type CabEntry = { avocat_id: string | null; duree_minutes: number; taux: number | null };
+type CabEntry = { avocat_id: string | null; duree_minutes: number };
 type Membre = {
   id: string;
   nom_complet: string | null;
   email: string | null;
+  taux_horaire: number | null;
   cout_horaire: number | null;
 };
 
@@ -110,51 +111,56 @@ export default async function TempsPage({
   let rentabilite: {
     membre: string;
     minutes: number;
-    ca: number;
+    tauxHoraire: number | null;
+    coutHoraire: number | null;
+    ca: number | null;
     cout: number | null;
     marge: number | null;
     memberId: string;
-    coutHoraire: number | null;
   }[] = [];
   if (isAdmin) {
     let cabQuery = supabase
       .from("time_entries")
-      .select("avocat_id, duree_minutes, taux");
+      .select("avocat_id, duree_minutes");
     if (start) cabQuery = cabQuery.gte("date_saisie", start);
     const [{ data: cabEntries }, { data: membres }] = await Promise.all([
       cabQuery.returns<CabEntry[]>(),
       supabase
         .from("profiles")
-        .select("id, nom_complet, email, cout_horaire")
+        .select("id, nom_complet, email, taux_horaire, cout_horaire")
         .eq("cabinet_id", user.cabinetId)
         .returns<Membre[]>(),
     ]);
 
-    const agg = new Map<string, { minutes: number; ca: number }>();
+    // On agrège le temps passé par collaborateur ; honoraires et coût sont
+    // ensuite calculés à partir de ses taux (réglés dans Équipe).
+    const minutesParMembre = new Map<string, number>();
     for (const e of cabEntries ?? []) {
       if (!e.avocat_id) continue;
-      const a = agg.get(e.avocat_id) ?? { minutes: 0, ca: 0 };
-      a.minutes += e.duree_minutes;
-      a.ca += montantLigne(e.duree_minutes, e.taux) ?? 0;
-      agg.set(e.avocat_id, a);
+      minutesParMembre.set(
+        e.avocat_id,
+        (minutesParMembre.get(e.avocat_id) ?? 0) + e.duree_minutes,
+      );
     }
 
     rentabilite = (membres ?? [])
       .map((m) => {
-        const a = agg.get(m.id) ?? { minutes: 0, ca: 0 };
-        const cout =
-          m.cout_horaire != null ? (a.minutes / 60) * m.cout_horaire : null;
+        const minutes = minutesParMembre.get(m.id) ?? 0;
+        const heures = minutes / 60;
+        const ca = m.taux_horaire != null ? heures * m.taux_horaire : null;
+        const cout = m.cout_horaire != null ? heures * m.cout_horaire : null;
         return {
           memberId: m.id,
           membre: m.nom_complet ?? m.email ?? "Membre",
+          tauxHoraire: m.taux_horaire,
           coutHoraire: m.cout_horaire,
-          minutes: a.minutes,
-          ca: a.ca,
+          minutes,
+          ca,
           cout,
-          marge: cout != null ? a.ca - cout : null,
+          marge: ca != null && cout != null ? ca - cout : null,
         };
       })
-      .sort((x, y) => y.ca - x.ca);
+      .sort((x, y) => (y.ca ?? 0) - (x.ca ?? 0));
   }
 
   const active = timerRow
@@ -273,52 +279,164 @@ export default async function TempsPage({
       {isAdmin && (
         <section className="mt-10">
           <h2 className="text-sm font-semibold">Rentabilité des collaborateurs</h2>
-          <p className="mt-1 text-sm text-muted">
-            Renseignez le coût horaire de chacun pour obtenir la marge (CA −
-            coût) sur la période.
+          <p className="mt-1 max-w-3xl text-sm text-muted">
+            Pour chaque collaborateur, on compare ce qu&apos;il{" "}
+            <strong className="font-medium text-foreground">rapporte</strong> et
+            ce qu&apos;il <strong className="font-medium text-foreground">coûte</strong>{" "}
+            sur la période, à partir de son{" "}
+            <strong className="font-medium text-foreground">taux facturé</strong>{" "}
+            et de son <strong className="font-medium text-foreground">coût horaire</strong>.
+            Ces deux taux se règlent dans{" "}
+            <Link href="/equipe" className="font-medium text-accent hover:underline">
+              Équipe
+            </Link>
+            .
           </p>
+
+          {/* Légende des colonnes */}
+          <dl className="mt-3 grid gap-2 text-xs text-muted sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border border-border bg-surface px-3 py-2">
+              <dt className="font-medium text-foreground">Honoraires (CA)</dt>
+              <dd>Temps passé × taux facturé</dd>
+            </div>
+            <div className="rounded-lg border border-border bg-surface px-3 py-2">
+              <dt className="font-medium text-foreground">Coût horaire</dt>
+              <dd>Salaire chargé / heure</dd>
+            </div>
+            <div className="rounded-lg border border-border bg-surface px-3 py-2">
+              <dt className="font-medium text-foreground">Coût</dt>
+              <dd>Temps passé × coût horaire</dd>
+            </div>
+            <div className="rounded-lg border border-border bg-surface px-3 py-2">
+              <dt className="font-medium text-foreground">Marge</dt>
+              <dd>Honoraires − Coût (gain net)</dd>
+            </div>
+          </dl>
+
           <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
                   <th className="px-4 py-2.5 font-medium">Collaborateur</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Temps</th>
-                  <th className="px-4 py-2.5 text-right font-medium">CA</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Coût/h</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Temps passé</th>
+                  <th className="px-4 py-2.5 text-right font-medium">
+                    Taux facturé
+                  </th>
+                  <th className="px-4 py-2.5 text-right font-medium">
+                    Honoraires (CA)
+                  </th>
+                  <th className="px-4 py-2.5 text-right font-medium">Coût horaire</th>
                   <th className="px-4 py-2.5 text-right font-medium">Coût</th>
                   <th className="px-4 py-2.5 text-right font-medium">Marge</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Taux</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {rentabilite.map((r) => (
-                  <tr key={r.memberId}>
-                    <td className="px-4 py-2.5 font-medium">{r.membre}</td>
-                    <td className="px-4 py-2.5 text-right tabular-nums">
-                      {formatDuree(r.minutes)}
-                    </td>
-                    <td className="px-4 py-2.5 text-right tabular-nums">
-                      {formatEuros(r.ca)}
-                    </td>
-                    <td className="px-4 py-2.5 text-right">
-                      <CostInput memberId={r.memberId} cout={r.coutHoraire} />
-                    </td>
-                    <td className="px-4 py-2.5 text-right tabular-nums text-muted">
-                      {r.cout != null ? formatEuros(r.cout) : "—"}
-                    </td>
-                    <td
-                      className={`px-4 py-2.5 text-right font-medium tabular-nums ${
-                        r.marge == null
-                          ? ""
-                          : r.marge >= 0
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {r.marge != null ? formatEuros(r.marge) : "—"}
-                    </td>
-                  </tr>
-                ))}
+                {rentabilite.map((r) => {
+                  const taux =
+                    r.marge != null && r.ca != null && r.ca > 0
+                      ? Math.round((r.marge / r.ca) * 100)
+                      : null;
+                  const positif = r.marge != null && r.marge >= 0;
+                  return (
+                    <tr key={r.memberId}>
+                      <td className="px-4 py-2.5 font-medium">{r.membre}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">
+                        {formatDuree(r.minutes)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-muted">
+                        {r.tauxHoraire != null ? `${r.tauxHoraire} €/h` : "—"}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">
+                        {r.ca != null ? formatEuros(r.ca) : "—"}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-muted">
+                        {r.coutHoraire != null ? `${r.coutHoraire} €/h` : "—"}
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-muted">
+                        {r.cout != null ? formatEuros(r.cout) : "—"}
+                      </td>
+                      <td
+                        className={`px-4 py-2.5 text-right font-semibold tabular-nums ${
+                          r.marge == null
+                            ? ""
+                            : positif
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {r.marge != null ? formatEuros(r.marge) : "—"}
+                      </td>
+                      <td
+                        className={`px-4 py-2.5 text-right tabular-nums ${
+                          taux == null
+                            ? "text-muted"
+                            : positif
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {taux != null ? `${taux > 0 ? "+" : ""}${taux} %` : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
+              {rentabilite.length > 0 &&
+                (() => {
+                  const tMin = rentabilite.reduce((s, r) => s + r.minutes, 0);
+                  const tCa = rentabilite.reduce((s, r) => s + (r.ca ?? 0), 0);
+                  const tCout = rentabilite.reduce(
+                    (s, r) => s + (r.cout ?? 0),
+                    0,
+                  );
+                  const tMarge = rentabilite.reduce(
+                    (s, r) => s + (r.marge ?? 0),
+                    0,
+                  );
+                  const tTaux = tCa > 0 ? Math.round((tMarge / tCa) * 100) : null;
+                  const pos = tMarge >= 0;
+                  return (
+                    <tfoot>
+                      <tr className="border-t-2 border-border font-semibold">
+                        <td className="px-4 py-2.5">Total équipe</td>
+                        <td className="px-4 py-2.5 text-right tabular-nums">
+                          {formatDuree(tMin)}
+                        </td>
+                        <td className="px-4 py-2.5" />
+                        <td className="px-4 py-2.5 text-right tabular-nums">
+                          {formatEuros(tCa)}
+                        </td>
+                        <td className="px-4 py-2.5" />
+                        <td className="px-4 py-2.5 text-right tabular-nums text-muted">
+                          {formatEuros(tCout)}
+                        </td>
+                        <td
+                          className={`px-4 py-2.5 text-right tabular-nums ${
+                            pos
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {formatEuros(tMarge)}
+                        </td>
+                        <td
+                          className={`px-4 py-2.5 text-right tabular-nums ${
+                            tTaux == null
+                              ? "text-muted"
+                              : pos
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {tTaux != null
+                            ? `${tTaux > 0 ? "+" : ""}${tTaux} %`
+                            : "—"}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  );
+                })()}
             </table>
           </div>
         </section>

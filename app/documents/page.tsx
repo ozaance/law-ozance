@@ -155,8 +155,10 @@ export default async function DocumentsPage({
                       <div className="flex justify-end">
                         <DocumentRowActions
                           id={doc.id}
+                          nom={doc.nom}
                           chemin={doc.chemin}
                           dossierId={dossier?.id ?? ""}
+                          cabinetId={user.cabinetId}
                         />
                       </div>
                     </td>
