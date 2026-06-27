@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import { login, magicLink } from "@/app/auth/actions";
+import { GoogleButton, OrDivider } from "@/app/auth/google-button";
 
 type Mode = "password" | "magic";
 
@@ -19,6 +20,9 @@ export function LoginForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm">
+      <GoogleButton next={next} />
+      <OrDivider />
+
       <div className="mb-6 flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900">
         <button
           type="button"

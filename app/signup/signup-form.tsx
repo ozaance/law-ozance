@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { signup } from "@/app/auth/actions";
+import { GoogleButton, OrDivider } from "@/app/auth/google-button";
 
 export function SignupForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState(signup, {});
@@ -10,6 +11,9 @@ export function SignupForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm">
+      <GoogleButton next={next} label="S'inscrire avec Google" />
+      <OrDivider />
+
       <form action={action} className="flex flex-col gap-4">
         {next && <input type="hidden" name="next" value={next} />}
         <Field label="Nom complet" name="nom_complet" type="text" autoComplete="name" />

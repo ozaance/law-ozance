@@ -73,6 +73,29 @@ export async function signup(
   };
 }
 
+// --- Connexion / inscription via Google (OAuth) ---
+export async function signInWithGoogle(formData: FormData): Promise<void> {
+  const next = safeNext(formData.get("next"));
+  const h = await headers();
+  const host = h.get("host")!;
+  const proto = h.get("x-forwarded-proto") ?? "http";
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: originUrl(
+        `/auth/callback?next=${encodeURIComponent(next)}`,
+        host,
+        proto,
+      ),
+    },
+  });
+
+  if (error || !data.url) redirect("/login?error=google");
+  redirect(data.url);
+}
+
 // --- Lien magique (sans mot de passe) ---
 export async function magicLink(
   _prev: ActionState,

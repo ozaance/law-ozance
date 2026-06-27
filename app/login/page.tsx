@@ -1,11 +1,18 @@
 import { LoginForm } from "./login-form";
 
+const ERROR_MESSAGES: Record<string, string> = {
+  google: "La connexion Google a échoué. Veuillez réessayer.",
+  oauth: "La connexion a échoué. Veuillez réessayer.",
+  lien_invalide: "Lien expiré ou invalide. Veuillez vous reconnecter.",
+};
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, error } = await searchParams;
+  const errorMsg = error ? ERROR_MESSAGES[error] : null;
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
       <div className="mb-8 flex flex-col items-center text-center">
@@ -18,6 +25,11 @@ export default async function LoginPage({
           Connectez-vous à votre cabinet
         </p>
       </div>
+      {errorMsg && (
+        <p className="mb-4 w-full max-w-sm rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+          {errorMsg}
+        </p>
+      )}
       <LoginForm next={next} />
     </main>
   );
