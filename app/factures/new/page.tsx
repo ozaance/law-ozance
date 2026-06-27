@@ -52,11 +52,23 @@ export default async function NewFacturePage({
     .eq("id", clientId)
     .single();
 
+  // Dossiers du client : pour pré-remplir l'objet et filtrer les temps.
+  const { data: dossiersRaw } = await supabase
+    .from("dossiers")
+    .select("id, reference, titre")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false });
+  const dossiers = (dossiersRaw ?? []).map((d) => ({
+    id: d.id,
+    reference: d.reference ?? "",
+    titre: d.titre,
+  }));
+
   // Saisies de temps non facturées des dossiers de ce client
   const { data: entries } = await supabase
     .from("time_entries")
     .select(
-      "id, date_saisie, duree_minutes, taux, description, dossier:dossiers!inner(reference, client_id)",
+      "id, date_saisie, duree_minutes, taux, description, dossier:dossiers!inner(id, reference, client_id)",
     )
     .eq("facturee", false)
     .eq("dossier.client_id", clientId)
@@ -64,12 +76,14 @@ export default async function NewFacturePage({
 
   const lignes: Ligne[] = (entries ?? []).map((e) => {
     const dossier = Array.isArray(e.dossier) ? e.dossier[0] : e.dossier;
+    const d = dossier as { id: string; reference: string } | null;
     return {
       id: e.id,
       date: e.date_saisie,
       dureeMinutes: e.duree_minutes,
       description: e.description ?? "",
-      dossier: (dossier as { reference: string } | null)?.reference ?? "",
+      dossier: d?.reference ?? "",
+      dossierId: d?.id ?? null,
       montant: montantLigne(e.duree_minutes, e.taux),
     };
   });
@@ -87,7 +101,7 @@ export default async function NewFacturePage({
       </h1>
       <p className="mb-6 text-sm text-muted">{client?.nom}</p>
 
-      <FactureForm clientId={clientId} lignes={lignes} />
+      <FactureForm clientId={clientId} lignes={lignes} dossiers={dossiers} />
     </AppShell>
   );
 }

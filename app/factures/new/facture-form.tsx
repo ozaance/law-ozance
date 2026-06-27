@@ -11,11 +11,18 @@ export type Ligne = {
   dureeMinutes: number;
   description: string;
   dossier: string;
+  dossierId: string | null;
   montant: number | null;
 };
 
+export type DossierOpt = { id: string; reference: string; titre: string };
+
 type Mode = "temps" | "forfait";
 type LigneLibre = { key: number; designation: string; montant: string };
+
+function dossierLabel(d: DossierOpt): string {
+  return d.reference ? `${d.reference} — ${d.titre}` : d.titre;
+}
 
 const inputCls =
   "rounded-md border border-border-strong bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-border-strong dark:bg-zinc-900 dark:focus:border-zinc-100";
@@ -23,12 +30,30 @@ const inputCls =
 export function FactureForm({
   clientId,
   lignes,
+  dossiers,
 }: {
   clientId: string;
   lignes: Ligne[];
+  dossiers: DossierOpt[];
 }) {
   const [state, action, pending] = useActionState(createFacture, {});
   const [mode, setMode] = useState<Mode>(lignes.length ? "temps" : "forfait");
+
+  // Dossier sélectionné : pré-remplit l'objet et filtre les temps.
+  const [dossierId, setDossierId] = useState<string>("");
+  const [objet, setObjet] = useState<string>("");
+  function onDossierChange(id: string) {
+    setDossierId(id);
+    const d = dossiers.find((x) => x.id === id);
+    // Pré-remplit l'objet (modifiable), sauf si l'utilisateur a déjà écrit autre chose.
+    if (d) setObjet(dossierLabel(d));
+  }
+
+  // Mode temps : on n'affiche que les saisies du dossier choisi (ou toutes).
+  const visibleLignes = useMemo(
+    () => (dossierId ? lignes.filter((l) => l.dossierId === dossierId) : lignes),
+    [dossierId, lignes],
+  );
 
   // Mode temps
   const [checked, setChecked] = useState<Set<string>>(
@@ -36,10 +61,14 @@ export function FactureForm({
   );
   const totalTemps = useMemo(
     () =>
-      lignes
+      visibleLignes
         .filter((l) => checked.has(l.id))
         .reduce((s, l) => s + (l.montant ?? 0), 0),
-    [checked, lignes],
+    [checked, visibleLignes],
+  );
+  const visibleCheckedCount = useMemo(
+    () => visibleLignes.filter((l) => checked.has(l.id)).length,
+    [checked, visibleLignes],
   );
   function toggle(id: string) {
     setChecked((prev) => {
@@ -107,23 +136,52 @@ export function FactureForm({
         ))}
       </div>
 
-      {/* Objet de l'affaire (commun) */}
+      {/* Dossier : pré-remplit l'objet et filtre les temps */}
+      {dossiers.length > 0 && (
+        <label className="flex max-w-2xl flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Dossier
+          </span>
+          <select
+            value={dossierId}
+            onChange={(e) => onDossierChange(e.target.value)}
+            className={inputCls}
+          >
+            <option value="">Tous les dossiers du client</option>
+            {dossiers.map((d) => (
+              <option key={d.id} value={d.id}>
+                {dossierLabel(d)}
+              </option>
+            ))}
+          </select>
+          <span className="text-xs text-zinc-400">
+            Sélectionnez un dossier pour reprendre son intitulé et ne facturer
+            que son temps.
+          </span>
+        </label>
+      )}
+
+      {/* Objet de l'affaire (commun) — pré-rempli depuis le dossier, modifiable */}
       <label className="flex max-w-2xl flex-col gap-1.5">
         <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Objet / Affaire
         </span>
         <input
           name="objet"
+          value={objet}
+          onChange={(e) => setObjet(e.target.value)}
           placeholder="Ex. Affaire X c/ Y — Contentieux commercial"
           className={inputCls}
         />
       </label>
 
       {mode === "temps" ? (
-        lignes.length === 0 ? (
+        visibleLignes.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border-strong py-10 text-center dark:border-border-strong">
             <p className="text-sm text-muted">
-              Aucune saisie de temps à facturer pour ce client.
+              {dossierId
+                ? "Aucune saisie de temps à facturer pour ce dossier."
+                : "Aucune saisie de temps à facturer pour ce client."}
             </p>
             <p className="mt-1 text-xs text-zinc-400">
               Passez « Au forfait » ou ajoutez du temps depuis les dossiers.
@@ -131,7 +189,7 @@ export function FactureForm({
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)] dark:border-border">
-            {lignes.map((l) => (
+            {visibleLignes.map((l) => (
               <div
                 key={l.id}
                 className="flex items-center gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0 dark:border-border"
@@ -257,7 +315,7 @@ export function FactureForm({
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={pending || (mode === "temps" && checked.size === 0)}
+          disabled={pending || (mode === "temps" && visibleCheckedCount === 0)}
           className="rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
         >
           {pending ? "…" : "Générer la note d'honoraires"}

@@ -19,6 +19,7 @@ export async function recordDocument(
   });
   if (error) return { error: error.message };
   revalidatePath(`/dossiers/${dossierId}`);
+  revalidatePath("/documents");
   return {};
 }
 
@@ -41,4 +42,5 @@ export async function deleteDocument(
   const { error } = await supabase.from("documents").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath(`/dossiers/${dossierId}`);
+  revalidatePath("/documents");
 }
