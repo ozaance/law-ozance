@@ -4,6 +4,7 @@ import type { CurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./nav-links";
 import { FloatingTimer } from "@/app/temps/floating-timer";
+import { Tutorial } from "./tutorial";
 
 // Chrono actif de l'utilisateur + dossiers (pour le widget flottant global).
 async function getTimerContext(userId: string) {
@@ -152,6 +153,9 @@ export async function AppShell({
 
       {/* Chrono flottant global (déplaçable, présent sur toutes les pages) */}
       <FloatingTimer active={activeTimer} dossiers={timerDossiers} />
+
+      {/* Tutoriel d'intro (une seule fois, skippable) */}
+      {!user.tutorielVu && <Tutorial />}
     </div>
   );
 }
