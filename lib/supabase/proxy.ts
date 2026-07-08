@@ -39,6 +39,8 @@ export async function updateSession(request: NextRequest) {
     "/signup",
     "/auth",
     "/stripe/webhook",
+    // Serveur MCP : authentification par jeton Bearer, pas par session.
+    "/api/mcp",
     "/mot-de-passe-oublie",
     "/nouveau-mot-de-passe",
     "/invitation",

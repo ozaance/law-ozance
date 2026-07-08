@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
@@ -27,6 +28,20 @@ export default async function ParametresPage() {
         Votre profil et votre taux horaire
       </p>
       <ParamsForm nomComplet={user.nomComplet} tauxHoraire={user.tauxHoraire} />
+
+      <section className="mt-12 border-t border-border pt-8">
+        <h2 className="text-lg font-semibold tracking-tight">Connexions</h2>
+        <p className="mb-4 mt-1 text-sm text-muted">
+          Reliez Google, Microsoft, votre outil de compta ou de signature, et
+          exposez vos données à un assistant IA (MCP).
+        </p>
+        <Link
+          href="/parametres/connexions"
+          className="inline-block rounded-md border border-border-strong px-4 py-2 text-sm font-medium transition-colors hover:bg-black/[0.04] dark:hover:bg-white/5"
+        >
+          Gérer les connexions →
+        </Link>
+      </section>
 
       {facturation && (
         <section className="mt-12 border-t border-border pt-8">
