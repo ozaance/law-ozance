@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NavLinks } from "./nav-links";
 import { FloatingTimer } from "@/app/temps/floating-timer";
 import { Tutorial } from "./tutorial";
+import { AssistantWidget } from "./assistant-widget";
 
 // Chrono actif de l'utilisateur + dossiers (pour le widget flottant global).
 async function getTimerContext(userId: string) {
@@ -156,6 +157,9 @@ export async function AppShell({
 
       {/* Tutoriel d'intro (une seule fois, skippable) */}
       {!user.tutorielVu && <Tutorial />}
+
+      {/* Assistant IA (présent sur toutes les pages de l'application) */}
+      <AssistantWidget />
     </div>
   );
 }
