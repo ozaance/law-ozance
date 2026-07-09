@@ -38,7 +38,8 @@ export default async function CreditsPage(
       <h1 className="text-xl font-semibold tracking-tight">Crédits IA</h1>
       <p className="mb-8 mt-1 text-sm text-muted">
         Le portefeuille du cabinet alimente l&apos;assistant IA. Chaque échange
-        consomme des crédits selon les tokens utilisés.
+        consomme des crédits selon les tokens utilisés. Un crédit de bienvenue
+        de 2 € est offert à chaque nouveau cabinet.
       </p>
       <CreditsClient
         isAdmin={user.role === "admin"}

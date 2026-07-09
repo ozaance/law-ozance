@@ -14,6 +14,10 @@ const PRICE: Record<string, { inPerM: number; outPerM: number }> = {
 const USD_TO_EUR = 0.95;
 const MARKUP = 1.6; // marge appliquée au coût Anthropic
 
+// Crédit de bienvenue offert une seule fois, à la création du portefeuille
+// (2 € ≈ quelques dizaines d'échanges pour essayer l'assistant).
+export const WELCOME_CREDIT_CENTS = 200;
+
 // Coût facturé à l'utilisateur, en centimes d'euro (minimum 1 centime).
 export function computeCostCents(
   model: string,
@@ -47,13 +51,14 @@ export async function getWallet(cabinetId: string): Promise<Wallet> {
 
   const { data: created } = await admin
     .from("ai_wallets")
-    .insert({ cabinet_id: cabinetId })
+    // Crédit de bienvenue à la première création du portefeuille.
+    .insert({ cabinet_id: cabinetId, balance_cents: WELCOME_CREDIT_CENTS })
     .select("cabinet_id, balance_cents, byok_enabled, byok_key_enc")
     .single();
   return (
     (created as Wallet | null) ?? {
       cabinet_id: cabinetId,
-      balance_cents: 0,
+      balance_cents: WELCOME_CREDIT_CENTS,
       byok_enabled: false,
       byok_key_enc: null,
     }
