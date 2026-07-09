@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { creditWallet } from "@/lib/ai/billing";
 
 // Webhook Stripe — met à jour l'abonnement du cabinet sans session utilisateur.
 // Nécessite STRIPE_WEBHOOK_SECRET + SUPABASE_SERVICE_ROLE_KEY.
@@ -45,6 +46,22 @@ export async function POST(request: NextRequest) {
   }
 
   switch (event.type) {
+    // Recharge de crédits IA (paiement unique). La session porte les
+    // métadonnées cabinet_id + credit_cents posées à la création du Checkout.
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const cabinetId = session.metadata?.cabinet_id;
+      const creditCents = Number(session.metadata?.credit_cents ?? 0);
+      if (
+        session.mode === "payment" &&
+        session.payment_status === "paid" &&
+        cabinetId &&
+        creditCents > 0
+      ) {
+        await creditWallet(cabinetId, creditCents);
+      }
+      break;
+    }
     case "customer.subscription.created":
     case "customer.subscription.updated":
       await syncSubscription(event.data.object as Stripe.Subscription);

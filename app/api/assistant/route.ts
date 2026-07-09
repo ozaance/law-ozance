@@ -3,13 +3,16 @@ import { type NextRequest, NextResponse } from "next/server";
 import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { CABINET_TOOLS, executeCabinetTool } from "@/lib/assistant/tools";
+import { debitAndLog, getWallet, resolveByokKey } from "@/lib/ai/billing";
 
 // =====================================================================
 // Assistant IA intégré (Claude Opus 4.8, SDK Anthropic officiel).
-// Boucle agentique : Claude peut appeler les outils de lecture du
-// cabinet (clients, dossiers, factures, agenda) puis répondre.
-// La réponse texte est diffusée en streaming vers le widget de chat.
-// Auth : session Supabase de l'utilisateur (RLS scope les données).
+// Boucle agentique : Claude appelle les outils du cabinet (lecture +
+// actions) puis répond. Réponse texte diffusée en streaming.
+//
+// Facturation : si le cabinet a activé sa propre clé Anthropic (BYOK),
+// Anthropic le facture directement. Sinon, on utilise la clé plateforme
+// et on débite le portefeuille de crédits du cabinet (bloqué à 0).
 // =====================================================================
 
 const MODEL = "claude-opus-4-8";
@@ -20,13 +23,30 @@ type ClientMessage = { role: "user" | "assistant"; content: string };
 export async function POST(request: NextRequest) {
   const user = await requireCabinet();
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const wallet = await getWallet(user.cabinetId);
+  const byokKey = resolveByokKey(wallet);
+  const usingByok = !!byokKey;
+  const apiKey = byokKey ?? process.env.ANTHROPIC_API_KEY;
+
+  if (!apiKey) {
     return NextResponse.json(
       {
         error:
-          "Assistant non configuré : ajoutez ANTHROPIC_API_KEY dans .env.local.",
+          "Assistant non configuré : aucun crédit plateforme ni clé Anthropic du cabinet.",
       },
       { status: 503 },
+    );
+  }
+
+  // Sans BYOK, il faut des crédits pour utiliser l'assistant.
+  if (!usingByok && wallet.balance_cents <= 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Crédits IA épuisés. Rechargez le portefeuille du cabinet dans Paramètres → Crédits IA pour continuer.",
+        code: "no_credits",
+      },
+      { status: 402 },
     );
   }
 
@@ -43,7 +63,7 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = await createClient();
-  const anthropic = new Anthropic();
+  const anthropic = new Anthropic({ apiKey });
 
   const today = new Date().toISOString().slice(0, 10);
   const system = [
@@ -54,20 +74,21 @@ export async function POST(request: NextRequest) {
     `Utilise les outils fournis pour consulter les données réelles du cabinet`,
     `(clients, dossiers, factures, agenda) avant de répondre à une question factuelle.`,
     `N'invente jamais de chiffres ou de noms : si l'information n'est pas disponible via un outil, dis-le.`,
-    `Tu peux aussi créer des enregistrements (client, dossier, événement) via les outils create_*.`,
-    `N'effectue une création que si l'utilisateur la demande clairement.`,
-    `Si un détail essentiel manque ou est ambigu, demande-le avant de créer plutôt que de deviner.`,
-    `Pour créer un dossier, retrouve d'abord le client avec search_clients.`,
-    `Après une création, confirme en une phrase ce qui a été créé.`,
+    `Tu peux aussi créer et modifier des enregistrements (client, dossier, événement, facture, statuts) via les outils.`,
+    `N'effectue une écriture que si l'utilisateur la demande clairement.`,
+    `Si un détail essentiel manque ou est ambigu, demande-le avant d'agir plutôt que de deviner.`,
+    `Pour créer un dossier ou une facture, retrouve d'abord le client avec search_clients.`,
+    `Après une écriture, confirme en une phrase ce qui a été fait (avec numéro/référence si pertinent).`,
   ].join(" ");
 
-  // Historique de conversation au format API (texte simple côté client).
   const messages: Anthropic.MessageParam[] = history.map((m) => ({
     role: m.role,
     content: m.content,
   }));
 
   const encoder = new TextEncoder();
+  let inputTokens = 0;
+  let outputTokens = 0;
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -81,17 +102,17 @@ export async function POST(request: NextRequest) {
             messages,
           });
 
-          // Diffuse le texte au fur et à mesure vers le client.
           messageStream.on("text", (delta) => {
             controller.enqueue(encoder.encode(delta));
           });
 
           const final = await messageStream.finalMessage();
+          inputTokens += final.usage.input_tokens ?? 0;
+          outputTokens += final.usage.output_tokens ?? 0;
           messages.push({ role: "assistant", content: final.content });
 
           if (final.stop_reason !== "tool_use") break;
 
-          // Exécute tous les outils demandés puis renvoie les résultats.
           const toolResults: Anthropic.ToolResultBlockParam[] = [];
           for (const block of final.content) {
             if (block.type !== "tool_use") continue;
@@ -118,10 +139,22 @@ export async function POST(request: NextRequest) {
           messages.push({ role: "user", content: toolResults });
         }
       } catch (e) {
-        const msg =
-          e instanceof Error ? e.message : "Erreur de l'assistant.";
+        const msg = e instanceof Error ? e.message : "Erreur de l'assistant.";
         controller.enqueue(encoder.encode(`\n\n⚠️ ${msg}`));
       } finally {
+        // Journalisation + débit des crédits (best-effort, hors chemin critique).
+        try {
+          await debitAndLog({
+            cabinetId: user.cabinetId,
+            userId: user.id,
+            model: MODEL,
+            inputTokens,
+            outputTokens,
+            byok: usingByok,
+          });
+        } catch {
+          // ne pas casser la réponse déjà envoyée
+        }
         controller.close();
       }
     },
