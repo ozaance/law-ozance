@@ -48,6 +48,8 @@ export async function updateSession(request: NextRequest) {
     "/robots.txt",
     "/sitemap.xml",
     "/opengraph-image",
+    // Politique de confidentialité (exigée par les stores + RGPD).
+    "/confidentialite",
   ];
   // "/" (landing publique) en correspondance exacte ; les autres en préfixe.
   const isPublic = pathname === "/" || publicPaths.some((p) => pathname.startsWith(p));

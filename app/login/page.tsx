@@ -9,9 +9,9 @@ const ERROR_MESSAGES: Record<string, string> = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; compte?: string }>;
 }) {
-  const { next, error } = await searchParams;
+  const { next, error, compte } = await searchParams;
   const errorMsg = error ? ERROR_MESSAGES[error] : null;
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
@@ -30,7 +30,17 @@ export default async function LoginPage({
           {errorMsg}
         </p>
       )}
+      {compte === "supprime" && (
+        <p className="mb-4 w-full max-w-sm rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+          Votre compte a été supprimé. Au revoir.
+        </p>
+      )}
       <LoginForm next={next} />
+      <p className="mt-8 text-xs text-muted">
+        <a href="/confidentialite" className="hover:underline">
+          Politique de confidentialité
+        </a>
+      </p>
     </main>
   );
 }

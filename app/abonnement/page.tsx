@@ -1,6 +1,7 @@
 import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
+import { HideOnNative } from "@/components/hide-on-native";
 import { formatDateFr } from "@/app/agenda/constants";
 import {
   PLANS,
@@ -44,6 +45,14 @@ export default async function AbonnementPage({
         Votre formule Ozance
       </p>
 
+      <HideOnNative
+        fallback={
+          <div className="rounded-xl border border-border bg-surface p-6 text-sm text-muted">
+            La gestion de l&apos;abonnement se fait depuis la version web de
+            Ozance.
+          </div>
+        }
+      >
       {actif ? (
         <div className="rounded-xl border border-border bg-surface p-6 shadow-[var(--shadow-sm)] dark:border-border">
           <div className="flex items-center gap-2">
@@ -144,6 +153,7 @@ export default async function AbonnementPage({
           </div>
         </>
       )}
+      </HideOnNative>
     </AppShell>
   );
 }

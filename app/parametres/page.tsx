@@ -2,11 +2,14 @@ import Link from "next/link";
 import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
+import { countMembers } from "@/lib/seats";
 import { ParamsForm } from "./params-form";
 import { FacturationForm, type FacturationDefaults } from "./facturation-form";
+import { DeleteAccount } from "./delete-account";
 
 export default async function ParametresPage() {
   const user = await requireCabinet();
+  const soleMember = (await countMembers(user.cabinetId)) <= 1;
 
   let facturation: FacturationDefaults | null = null;
   if (user.role === "admin") {
@@ -69,6 +72,21 @@ export default async function ParametresPage() {
           <FacturationForm defaults={facturation} />
         </section>
       )}
+
+      <section className="mt-12 border-t border-border pt-8">
+        <h2 className="text-lg font-semibold tracking-tight">Confidentialité</h2>
+        <p className="mb-4 mt-1 text-sm text-muted">
+          Comment vos données sont traitées et protégées.
+        </p>
+        <Link
+          href="/confidentialite"
+          className="inline-block rounded-md border border-border-strong px-4 py-2 text-sm font-medium transition-colors hover:bg-black/[0.04] dark:hover:bg-white/5"
+        >
+          Politique de confidentialité →
+        </Link>
+      </section>
+
+      <DeleteAccount soleMember={soleMember} />
     </AppShell>
   );
 }

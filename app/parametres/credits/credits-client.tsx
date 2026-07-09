@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useIsNative } from "@/lib/native";
 import {
   buyCreditsAction,
   disableByok,
@@ -52,6 +53,7 @@ export function CreditsClient({
     disableByok,
     {},
   );
+  const native = useIsNative();
 
   return (
     <div className="flex flex-col gap-8">
@@ -85,8 +87,15 @@ export function CreditsClient({
         )}
       </section>
 
-      {/* Recharge */}
-      {!byokEnabled && (
+      {/* Recharge — masquée dans l'app native (règle Apple 3.1.1) */}
+      {!byokEnabled && native && (
+        <section className={card}>
+          <p className="text-sm text-muted">
+            La recharge de crédits se gère depuis la version web de Ozance.
+          </p>
+        </section>
+      )}
+      {!byokEnabled && !native && (
         <section>
           <h2 className="mb-1 text-lg font-semibold tracking-tight">Recharger</h2>
           <p className="mb-4 text-sm text-muted">
