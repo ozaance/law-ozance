@@ -148,6 +148,72 @@ export const CABINET_TOOLS: Anthropic.Tool[] = [
       required: ["titre", "date_evenement"],
     },
   },
+  {
+    name: "create_facture",
+    description:
+      "Crée une facture ou note d'honoraires (mode forfait) pour un client, avec une ou plusieurs lignes. La TVA est calculée selon le régime du cabinet, le numéro est attribué automatiquement.",
+    input_schema: {
+      type: "object",
+      properties: {
+        client_id: { type: "string", description: "ID du client (utilise search_clients)" },
+        lignes: {
+          type: "array",
+          description: "Lignes de prestation",
+          items: {
+            type: "object",
+            properties: {
+              designation: { type: "string" },
+              montant_ht: { type: "number", description: "Montant HT en euros" },
+            },
+            required: ["designation", "montant_ht"],
+          },
+        },
+        objet: { type: "string", description: "Objet de la facture (optionnel)" },
+        date_echeance: {
+          type: "string",
+          description: "Échéance YYYY-MM-DD (optionnel)",
+        },
+        type_document: {
+          type: "string",
+          enum: ["note", "facture"],
+          description: "Défaut : note (note d'honoraires)",
+        },
+      },
+      required: ["client_id", "lignes"],
+    },
+  },
+  {
+    name: "update_dossier_statut",
+    description:
+      "Change le statut d'un dossier (par ex. le clôturer). Pour clôturer, utilise 'clos'.",
+    input_schema: {
+      type: "object",
+      properties: {
+        dossier_id: { type: "string" },
+        statut: {
+          type: "string",
+          enum: ["ouvert", "en_cours", "en_attente", "clos"],
+        },
+      },
+      required: ["dossier_id", "statut"],
+    },
+  },
+  {
+    name: "update_facture_statut",
+    description:
+      "Change le statut d'une facture (par ex. la marquer payée avec 'payee', envoyée avec 'envoyee', ou annulée).",
+    input_schema: {
+      type: "object",
+      properties: {
+        facture_id: { type: "string" },
+        statut: {
+          type: "string",
+          enum: ["brouillon", "envoyee", "payee", "annulee"],
+        },
+      },
+      required: ["facture_id", "statut"],
+    },
+  },
 ];
 
 // Outils qui modifient les données (pour distinguer lecture / écriture).
@@ -155,6 +221,9 @@ export const WRITE_TOOL_NAMES = new Set([
   "create_client",
   "create_dossier",
   "create_evenement",
+  "create_facture",
+  "update_dossier_statut",
+  "update_facture_statut",
 ]);
 
 type Args = Record<string, unknown>;
@@ -309,6 +378,95 @@ export async function executeCabinetTool(
       .single();
     if (error) throw new Error(error.message);
     return { created: "evenement", ...data };
+  }
+
+  if (name === "create_facture") {
+    const clientId = str(args.client_id);
+    if (!clientId) throw new Error("client_id obligatoire (cherchez le client d'abord).");
+    const rawLignes = Array.isArray(args.lignes) ? args.lignes : [];
+    const lignes = rawLignes
+      .map((l) => {
+        const o = (l ?? {}) as Record<string, unknown>;
+        return {
+          designation: str(o.designation) ?? "Prestation juridique",
+          montant: Number(o.montant_ht) || 0,
+        };
+      })
+      .filter((l) => l.montant > 0 || l.designation !== "Prestation juridique");
+    if (lignes.length === 0)
+      throw new Error("Ajoutez au moins une ligne (désignation + montant HT).");
+
+    // Régime TVA du cabinet (RLS ne renvoie que le cabinet de l'utilisateur).
+    const { data: cab } = await supabase
+      .from("cabinets")
+      .select("tva_assujetti, tva_taux")
+      .limit(1)
+      .single();
+    const tauxTva = cab?.tva_assujetti ? Number(cab.tva_taux ?? 20) : 0;
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const montantHt = round2(lignes.reduce((s, l) => s + l.montant, 0));
+    const montantTva = round2(montantHt * (tauxTva / 100));
+
+    const { data: facture, error } = await supabase
+      .from("factures")
+      .insert({
+        client_id: clientId,
+        objet: str(args.objet),
+        date_echeance: str(args.date_echeance),
+        type_document: args.type_document === "facture" ? "facture" : "note",
+        montant_ht: montantHt,
+        taux_tva: tauxTva,
+        montant_tva: montantTva,
+        total: round2(montantHt + montantTva),
+      })
+      .select("id, numero, type_document, statut, total, montant_ht, taux_tva")
+      .single();
+    if (error) throw new Error(error.message);
+
+    const { error: lErr } = await supabase.from("facture_lignes").insert(
+      lignes.map((l, i) => ({
+        facture_id: facture.id,
+        designation: l.designation,
+        montant: round2(l.montant),
+        ordre: i,
+      })),
+    );
+    if (lErr) throw new Error(lErr.message);
+    return { created: "facture", ...facture };
+  }
+
+  if (name === "update_dossier_statut") {
+    const id = str(args.dossier_id);
+    const statut = str(args.statut);
+    if (!id || !statut) throw new Error("dossier_id et statut obligatoires.");
+    const { data, error } = await supabase
+      .from("dossiers")
+      .update({ statut })
+      .eq("id", id)
+      .select("id, reference, titre, statut")
+      .single();
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error("Dossier introuvable.");
+    return { updated: "dossier", ...data };
+  }
+
+  if (name === "update_facture_statut") {
+    const id = str(args.facture_id);
+    const statut = str(args.statut);
+    if (!id || !statut) throw new Error("facture_id et statut obligatoires.");
+    // Numéro légal attribué une seule fois, à l'émission (comme dans l'app).
+    if (statut === "envoyee" || statut === "payee") {
+      await supabase.rpc("attribuer_numero_facture", { p_facture: id });
+    }
+    const { data, error } = await supabase
+      .from("factures")
+      .update({ statut })
+      .eq("id", id)
+      .select("id, numero, statut, total")
+      .single();
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error("Facture introuvable.");
+    return { updated: "facture", ...data };
   }
 
   throw new Error(`Outil inconnu : ${name}`);
