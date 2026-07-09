@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { login, magicLink } from "@/app/auth/actions";
 import { GoogleButton, OrDivider } from "@/app/auth/google-button";
+import { AppleButton, APPLE_SIGNIN_ENABLED } from "@/app/auth/apple-button";
 
 type Mode = "password" | "magic";
 
@@ -20,7 +21,10 @@ export function LoginForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm">
-      <GoogleButton next={next} />
+      <div className="flex flex-col gap-2.5">
+        <GoogleButton next={next} />
+        {APPLE_SIGNIN_ENABLED && <AppleButton next={next} />}
+      </div>
       <OrDivider />
 
       <div className="mb-6 flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900">

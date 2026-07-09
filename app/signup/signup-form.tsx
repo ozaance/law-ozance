@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { signup } from "@/app/auth/actions";
 import { GoogleButton, OrDivider } from "@/app/auth/google-button";
+import { AppleButton, APPLE_SIGNIN_ENABLED } from "@/app/auth/apple-button";
 
 export function SignupForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState(signup, {});
@@ -11,7 +12,12 @@ export function SignupForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm">
-      <GoogleButton next={next} label="S'inscrire avec Google" />
+      <div className="flex flex-col gap-2.5">
+        <GoogleButton next={next} label="S'inscrire avec Google" />
+        {APPLE_SIGNIN_ENABLED && (
+          <AppleButton next={next} label="S'inscrire avec Apple" />
+        )}
+      </div>
       <OrDivider />
 
       <form action={action} className="flex flex-col gap-4">

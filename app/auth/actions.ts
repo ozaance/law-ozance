@@ -96,6 +96,31 @@ export async function signInWithGoogle(formData: FormData): Promise<void> {
   redirect(data.url);
 }
 
+// --- Connexion / inscription via Apple (Sign in with Apple) ---
+// Obligatoire dès qu'un autre login social est proposé (règle Apple 4.8).
+// À activer : provider Apple configuré dans Supabase + NEXT_PUBLIC_APPLE_SIGNIN=true.
+export async function signInWithApple(formData: FormData): Promise<void> {
+  const next = safeNext(formData.get("next"));
+  const h = await headers();
+  const host = h.get("host")!;
+  const proto = h.get("x-forwarded-proto") ?? "http";
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "apple",
+    options: {
+      redirectTo: originUrl(
+        `/auth/callback?next=${encodeURIComponent(next)}`,
+        host,
+        proto,
+      ),
+    },
+  });
+
+  if (error || !data.url) redirect("/login?error=apple");
+  redirect(data.url);
+}
+
 // --- Lien magique (sans mot de passe) ---
 export async function magicLink(
   _prev: ActionState,

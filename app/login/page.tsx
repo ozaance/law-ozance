@@ -2,6 +2,7 @@ import { LoginForm } from "./login-form";
 
 const ERROR_MESSAGES: Record<string, string> = {
   google: "La connexion Google a échoué. Veuillez réessayer.",
+  apple: "La connexion Apple a échoué. Veuillez réessayer.",
   oauth: "La connexion a échoué. Veuillez réessayer.",
   lien_invalide: "Lien expiré ou invalide. Veuillez vous reconnecter.",
 };

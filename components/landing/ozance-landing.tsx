@@ -561,7 +561,7 @@ export function OzanceLanding() {
             </div>
             <div style={st(`border-top:1px solid var(--hairline);margin-top:30px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--text-3);`)}>
               <span>© 2026 Ozance — Tous droits réservés</span>
-              <span style={st(`display:inline-flex;gap:20px;flex-wrap:wrap;`)}><span>Hébergé en France</span><span>Conforme RGPD</span><span>ISO 27001</span></span>
+              <span style={st(`display:inline-flex;gap:20px;flex-wrap:wrap;`)}><span>Hébergé en France</span><span>Conforme RGPD</span><span>Données chiffrées</span></span>
             </div>
           </footer>
         </div>
