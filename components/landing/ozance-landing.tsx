@@ -202,7 +202,6 @@ export function OzanceLanding() {
     colorScheme: theme,
   } as CSSProperties;
 
-  const logos = ["Lefebvre Dalloz", "FIDAL", "AJ Associés", "Cornet Vincent", "LexVox"];
   const nav = ["Tableau de bord", "Dossiers", "Agenda", "Temps & honoraires", "Facturation", "Documents", "Contacts", "Rapports"];
   const kpis = [
     { label: "Dossiers actifs", value: "128", delta: "▲ 12 ce mois", dc: t.pos },
@@ -348,16 +347,6 @@ export function OzanceLanding() {
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
-
-          {/* TRUST LOGOS */}
-          <section className="oz-reveal oz-pad" style={st(`max-width:1240px;margin:36px auto 0;padding:18px 34px 0;`)}>
-            <div style={st(`text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:26px;`)}>Adopté par des cabinets exigeants</div>
-            <div style={st(`display:flex;align-items:center;justify-content:center;gap:54px;flex-wrap:wrap;opacity:.62;`)}>
-              {logos.map((l) => (
-                <span key={l} style={st(`font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:.01em;color:var(--text-2);`)}>{l}</span>
-              ))}
             </div>
           </section>
 

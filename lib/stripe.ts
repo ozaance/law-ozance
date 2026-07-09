@@ -19,13 +19,13 @@ export const TRIAL_DAYS = 14;
 export const PLANS = {
   essentiel: {
     nom: "Essentiel",
-    prix: 49,
+    prix: 64,
     priceId: process.env.STRIPE_PRICE_ESSENTIEL!,
     features: ["Clients & dossiers", "Agenda & échéances", "Documents"],
   },
   cabinet: {
     nom: "Cabinet",
-    prix: 99,
+    prix: 129,
     priceId: process.env.STRIPE_PRICE_CABINET!,
     features: [
       "Tout Essentiel",

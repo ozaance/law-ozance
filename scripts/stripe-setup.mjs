@@ -10,8 +10,8 @@ if (!key) {
 const stripe = new Stripe(key);
 
 const PLANS = [
-  { code: "essentiel", nom: "LexFlow Essentiel", montant: 4900 },
-  { code: "cabinet", nom: "LexFlow Cabinet", montant: 9900 },
+  { code: "essentiel", nom: "LexFlow Essentiel", montant: 6400 },
+  { code: "cabinet", nom: "LexFlow Cabinet", montant: 12900 },
 ];
 
 async function ensurePlan({ code, nom, montant }) {
