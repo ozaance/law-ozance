@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { creditWallet } from "@/lib/ai/billing";
 
 // Webhook Stripe — met à jour l'abonnement du cabinet sans session utilisateur.
 // Nécessite STRIPE_WEBHOOK_SECRET + SUPABASE_SERVICE_ROLE_KEY.
@@ -58,7 +57,13 @@ export async function POST(request: NextRequest) {
         cabinetId &&
         creditCents > 0
       ) {
-        await creditWallet(cabinetId, creditCents);
+        // Idempotent : crédite au plus une fois par session Stripe, même si
+        // le webhook livre l'événement plusieurs fois.
+        await admin.rpc("record_credit_topup", {
+          p_cabinet: cabinetId,
+          p_session: session.id,
+          p_cents: creditCents,
+        });
       }
       break;
     }
