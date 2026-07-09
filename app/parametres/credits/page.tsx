@@ -2,7 +2,7 @@ import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { getWallet } from "@/lib/ai/billing";
-import { CREDIT_PACKS } from "./actions";
+import { CREDIT_PACKS } from "./constants";
 import { CreditsClient, type UsageRow } from "./credits-client";
 
 export default async function CreditsPage(

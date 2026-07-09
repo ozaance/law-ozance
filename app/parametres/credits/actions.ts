@@ -7,9 +7,7 @@ import { requireCabinet } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 import { encryptToken } from "@/lib/connectors/crypto";
-
-// Packs de crédits proposés (en centimes d'euro).
-export const CREDIT_PACKS = [500, 1000, 2500, 5000] as const;
+import { CREDIT_PACKS } from "./constants";
 
 async function baseUrl() {
   const h = await headers();
