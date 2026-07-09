@@ -40,6 +40,12 @@ workflows:
         script: npx capacitor-assets generate --ios
       - name: Synchroniser Capacitor
         script: npx cap sync ios
+      - name: Déclarer l'usage de Face ID (Info.plist)
+        script: |
+          PLIST="ios/App/App/Info.plist"
+          MSG="Ozance utilise Face ID pour proteger l acces a vos donnees."
+          /usr/libexec/PlistBuddy -c "Add :NSFaceIDUsageDescription string \"$MSG\"" "$PLIST" 2>/dev/null \
+            || /usr/libexec/PlistBuddy -c "Set :NSFaceIDUsageDescription \"$MSG\"" "$PLIST"
       - name: Signature (profils gérés par Codemagic)
         script: xcode-project use-profiles
       - name: Compiler l'IPA

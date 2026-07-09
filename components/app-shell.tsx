@@ -6,6 +6,7 @@ import { NavLinks } from "./nav-links";
 import { FloatingTimer } from "@/app/temps/floating-timer";
 import { Tutorial } from "./tutorial";
 import { AssistantWidget } from "./assistant-widget";
+import { NativeGuard } from "./native-guard";
 
 // Chrono actif de l'utilisateur + dossiers (pour le widget flottant global).
 async function getTimerContext(userId: string) {
@@ -160,6 +161,9 @@ export async function AppShell({
 
       {/* Assistant IA (présent sur toutes les pages de l'application) */}
       <AssistantWidget />
+
+      {/* Verrou biométrique (app native uniquement) */}
+      <NativeGuard />
     </div>
   );
 }
