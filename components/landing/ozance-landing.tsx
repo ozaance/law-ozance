@@ -355,7 +355,7 @@ export function OzanceLanding() {
             <div className="oz-reveal" style={st(`text-align:center;max-width:680px;margin:0 auto 46px;`)}>
               <div style={st(`font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;font-weight:600;`)}>La plateforme</div>
               <h2 style={st(`font-family:var(--display);font-weight:600;font-size:clamp(32px,4vw,48px);line-height:1.06;letter-spacing:-.03em;margin:0 0 18px;`)}>Un seul espace pour tout piloter</h2>
-              <p style={st(`font-size:17px;line-height:1.6;color:var(--text-2);margin:0;`)}>Dossiers, échéances, temps, facturation et rentabilité — réunis dans une interface pensée pour la pratique du droit.</p>
+              <p style={st(`font-size:17px;line-height:1.6;color:var(--text-2);margin:0;`)}>Dossiers, échéances, temps, facturation et rentabilité réunis dans une interface pensée pour la pratique du droit.</p>
             </div>
             <div className="oz-reveal" style={{ position: "relative" }}>
               <div style={st(`position:absolute;inset:-1px;border-radius:20px;background:linear-gradient(135deg,var(--accent-soft),transparent 55%);z-index:0;`)} />
